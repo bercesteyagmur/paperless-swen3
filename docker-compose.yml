@@ -1,0 +1,57 @@
+# this file can describe 2 containers at the same time.
+#  When we run "docker compose up", both containers start together, with one single command. Sprint 1 of our assignment asks for exactly this:
+
+#   1. PostgreSQL database
+#   2. our own Spring Boot application
+
+services:
+
+  # Container 1: database
+  db:
+    image: postgres:16
+    container_name: paperless-db
+
+    # postgres image will read these 3 values the first time it starts and uses them to create the database, the user and the password automatically. We do not have to do this by hand.
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: paperless
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      # if we remove container, everything inside it is gone too. But this line saves the real database files, in a "named volume", so our data survives even after "docker compose down".
+      # Example: we upload 3 files, then run "docker compose down" and
+      # "docker compose up" again. Without this line, the new container
+      # would start empty - the 3 rows would be gone. With this line, the
+      # same 3 rows are still there.
+      - paperless-db-data:/var/lib/postgresql/data
+
+  # Container 2: our own REST server
+  paperless-rest:
+
+    build: .
+    container_name: paperless-rest
+    ports:
+      - "8081:8081"
+    environment:
+      # Why "DB_HOST: db" and not "DB_HOST: localhost"? Because inside the
+      # Docker network, one container finds another container by its
+      # servce name, not by "localhost". Our database's service name is
+      # "db", so that is the value we must use.
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: paperless
+      DB_USER: paperless
+      DB_PASSWORD: paperless
+
+    depends_on:
+      # This only controls the START ORDER: Docker will start "db" first,
+      # then "paperless-rest". It does NOT wait until PostgreSQL is fully
+      # ready to accept connections.
+      - db
+
+# volume is like a small storage box that Docker manages for us, outside of container.
+volumes:
+  paperless-db-data:
