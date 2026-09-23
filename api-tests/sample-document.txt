@@ -1,0 +1,1 @@
+This is a small document used to test the Paperless upload endpoint
