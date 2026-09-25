@@ -2,10 +2,8 @@ package at.ac.fhtw.swen3.paperless.service.impl;
 
 import at.ac.fhtw.swen3.paperless.dto.UploadedFileResponse;
 import at.ac.fhtw.swen3.paperless.entity.UploadedFile;
-import at.ac.fhtw.swen3.paperless.entity.User;
 import at.ac.fhtw.swen3.paperless.mapper.UploadedFileMapper;
 import at.ac.fhtw.swen3.paperless.repository.UploadedFileRepository;
-import at.ac.fhtw.swen3.paperless.repository.UserRepository;
 import at.ac.fhtw.swen3.paperless.service.UploadedFileService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +24,6 @@ import java.util.Optional;
 public class UploadedFileServiceImpl implements UploadedFileService {
 
     private final UploadedFileRepository uploadedFileRepository;
-    private final UserRepository userRepository;
     private final UploadedFileMapper uploadedFileMapper;
 
     private UploadedFile findByIdOrThrow(Long id) {
@@ -37,24 +34,13 @@ public class UploadedFileServiceImpl implements UploadedFileService {
         return fileOptional.get();
     }
 
-    private User findUserByIdOrThrow(Long userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "user with id " + userId + " was not found");
-        }
-        return userOptional.get();
-    }
-
-    // CREATE -> reads file's name and type and links it to the user, and saves a new row.
+    // CREATE -> reads the file metadata and saves a new row
     @Override
-    public UploadedFileResponse uploadFile(MultipartFile file, Long userId) {
-        User uploadedBy = findUserByIdOrThrow(userId);
-
+    public UploadedFileResponse uploadFile(MultipartFile file) {
         UploadedFile uploadedFile = UploadedFile.builder()
                 .originalFileName(file.getOriginalFilename())
                 .fileType(file.getContentType())
                 .uploadedAt(LocalDateTime.now())
-                .uploadedBy(uploadedBy)
                 .build();
 
         UploadedFile savedFile = uploadedFileRepository.save(uploadedFile);

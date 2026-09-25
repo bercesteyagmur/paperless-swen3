@@ -15,7 +15,6 @@ public class UploadedFileMapper {
                 .originalFileName(uploadedFile.getOriginalFileName())
                 .fileType(uploadedFile.getFileType())
                 .uploadedAt(uploadedFile.getUploadedAt())
-                .uploadedByUsername(uploadedFile.getUploadedBy().getUsername())
                 .build();
     }
 }

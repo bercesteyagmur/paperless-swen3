@@ -21,10 +21,10 @@ public class UploadedFileController {
 
     private final UploadedFileService uploadedFileService;
 
-    // POST /api/files?userId=1 (multipart/form-data, part name "file") -> 201 Created
+    // POST /api/files (multipart/form-data, part name "file") -> 201 Created
     @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<UploadedFileResponse> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam Long userId) {
-        UploadedFileResponse response = uploadedFileService.uploadFile(file, userId);
+    public ResponseEntity<UploadedFileResponse> uploadFile(@RequestParam("file") MultipartFile file) {
+        UploadedFileResponse response = uploadedFileService.uploadFile(file);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

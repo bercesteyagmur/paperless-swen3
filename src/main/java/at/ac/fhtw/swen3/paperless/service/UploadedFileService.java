@@ -10,7 +10,7 @@ import java.util.List;
 // So controller knows only the interface, never the implementation
 public interface UploadedFileService {
 
-    UploadedFileResponse uploadFile(MultipartFile file, Long userId);
+    UploadedFileResponse uploadFile(MultipartFile file);
 
     List<UploadedFileResponse> getAllFiles();
 
