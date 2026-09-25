@@ -6,11 +6,8 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-// This class is managing which attributes we send back to the frontend
-// It is not the same as the UploadedFile entity.
-// The entity's "uploadedBy" field holds a full User object and that User has a "password" field.
-// If we sent the entity to the frontend directly, password would leak into the JSON response!
-// That is why here we only pick "uploadedByUsername"
+// This class manages which file attributes we send back to the frontend
+// It is not the same as the UploadedFile entity
 @Getter
 @Builder
 @AllArgsConstructor
@@ -20,5 +17,4 @@ public class UploadedFileResponse {
     private String originalFileName;
     private String fileType;
     private LocalDateTime uploadedAt;
-    private String uploadedByUsername;
 }

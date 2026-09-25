@@ -11,10 +11,6 @@
       "value": "http://localhost:8081"
     },
     {
-      "key": "userId",
-      "value": "1"
-    },
-    {
       "key": "fileId",
       "value": ""
     }
@@ -36,19 +32,13 @@
           ]
         },
         "url": {
-          "raw": "{{baseUrl}}/api/files?userId={{userId}}",
+          "raw": "{{baseUrl}}/api/files",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "api",
             "files"
-          ],
-          "query": [
-            {
-              "key": "userId",
-              "value": "{{userId}}"
-            }
           ]
         }
       },

@@ -2,10 +2,8 @@ package at.ac.fhtw.swen3.paperless.service.impl;
 
 import at.ac.fhtw.swen3.paperless.dto.UploadedFileResponse;
 import at.ac.fhtw.swen3.paperless.entity.UploadedFile;
-import at.ac.fhtw.swen3.paperless.entity.User;
 import at.ac.fhtw.swen3.paperless.mapper.UploadedFileMapper;
 import at.ac.fhtw.swen3.paperless.repository.UploadedFileRepository;
-import at.ac.fhtw.swen3.paperless.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -28,42 +26,27 @@ import static org.mockito.Mockito.*;
 class UploadedFileServiceImplTest {
 
     @Mock private UploadedFileRepository uploadedFileRepository;
-    @Mock private UserRepository userRepository;
     @Mock private UploadedFileMapper uploadedFileMapper;
     @Mock private MultipartFile multipartFile;
     @InjectMocks private UploadedFileServiceImpl service;
 
     @Test
-    void uploadSavesMetadataForExistingUser() {
-        User user = User.builder().id(7L).username("alice").build();
+    void uploadSavesFileMetadata() {
         UploadedFileResponse response = response("report.pdf");
 
         // Tell the mocks what they should return, so we do not need a real database here
-        when(userRepository.findById(7L)).thenReturn(Optional.of(user));
         when(multipartFile.getOriginalFilename()).thenReturn("report.pdf");
         when(multipartFile.getContentType()).thenReturn("application/pdf");
         when(uploadedFileRepository.save(any(UploadedFile.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(uploadedFileMapper.toResponse(any(UploadedFile.class))).thenReturn(response);
 
-        assertThat(service.uploadFile(multipartFile, 7L)).isSameAs(response);
+        assertThat(service.uploadFile(multipartFile)).isSameAs(response);
 
         ArgumentCaptor<UploadedFile> savedFile = ArgumentCaptor.forClass(UploadedFile.class);
         verify(uploadedFileRepository).save(savedFile.capture());
         assertThat(savedFile.getValue().getOriginalFileName()).isEqualTo("report.pdf");
         assertThat(savedFile.getValue().getFileType()).isEqualTo("application/pdf");
-        assertThat(savedFile.getValue().getUploadedBy()).isSameAs(user);
         assertThat(savedFile.getValue().getUploadedAt()).isNotNull();
-    }
-
-    @Test
-    void uploadRejectsUnknownUserWithoutSaving() {
-        // The repository returns empty because the user does not exist
-        when(userRepository.findById(7L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.uploadFile(multipartFile, 7L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND));
-        verifyNoInteractions(uploadedFileRepository, uploadedFileMapper);
     }
 
     @Test

@@ -41,8 +41,4 @@ public class UploadedFile {
     @Column(nullable = false)
     private LocalDateTime uploadedAt;
 
-    // Many files can belong to the same user
-    @ManyToOne
-    @JoinColumn(name = "uploaded_by_id")
-    private User uploadedBy;
 }
