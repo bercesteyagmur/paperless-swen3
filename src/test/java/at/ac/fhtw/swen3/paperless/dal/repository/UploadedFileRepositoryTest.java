@@ -1,6 +1,6 @@
-package at.ac.fhtw.swen3.paperless.repository;
+package at.ac.fhtw.swen3.paperless.dal.repository;
 
-import at.ac.fhtw.swen3.paperless.entity.UploadedFile;
+import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

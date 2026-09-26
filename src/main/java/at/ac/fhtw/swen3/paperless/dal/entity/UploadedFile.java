@@ -1,4 +1,4 @@
-package at.ac.fhtw.swen3.paperless.entity;
+package at.ac.fhtw.swen3.paperless.dal.entity;
 
 import jakarta.persistence.*; // JPA annotations (@Entity, @Id, @Column, ...) - the "rules" for mapping this class to a database table
 import lombok.AllArgsConstructor; // generates a constructor that takes every field as a parameter
