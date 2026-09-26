@@ -1,8 +1,10 @@
 package at.ac.fhtw.swen3.paperless.controller;
 
+import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
 import at.ac.fhtw.swen3.paperless.dto.UploadedFileResponse;
 import at.ac.fhtw.swen3.paperless.dto.UploadedFileUpdateRequest;
-import at.ac.fhtw.swen3.paperless.service.UploadedFileService;
+import at.ac.fhtw.swen3.paperless.mapper.UploadedFileMapper;
+import at.ac.fhtw.swen3.paperless.business.service.UploadedFileService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,30 +22,40 @@ import java.util.List;
 public class UploadedFileController {
 
     private final UploadedFileService uploadedFileService;
+    private final UploadedFileMapper uploadedFileMapper;
 
     // POST /api/files (multipart/form-data, part name "file") -> 201 Created
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<UploadedFileResponse> uploadFile(@RequestParam("file") MultipartFile file) {
-        UploadedFileResponse response = uploadedFileService.uploadFile(file);
+        UploadedFileModel uploadedFileModel = UploadedFileModel.builder()
+                .originalFileName(file.getOriginalFilename())
+                .fileType(file.getContentType())
+                .build();
+
+        UploadedFileModel savedUploadedFileModel = uploadedFileService.uploadFile(uploadedFileModel);
+        UploadedFileResponse response = uploadedFileMapper.toResponseDto(savedUploadedFileModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // GET /api/files -> default 200, list of all files
     @GetMapping
     public List<UploadedFileResponse> getAllFiles() {
-        return uploadedFileService.getAllFiles();
+        return uploadedFileService.getAllFiles().stream()
+                .map(uploadedFileMapper::toResponseDto)
+                .toList();
     }
 
     // GET /api/files/{id} -> 200 OK or 404 (thrown in Service)
     @GetMapping("/{id}")
     public UploadedFileResponse getFileById(@PathVariable Long id) {
-        return uploadedFileService.getFileById(id);
+        return uploadedFileMapper.toResponseDto(uploadedFileService.getFileById(id));
     }
 
     // PATCH /api/files/{id}, body: {"originalFileName": "new.pdf"} -> 200
     @PatchMapping("/{id}")
     public UploadedFileResponse updateFile(@PathVariable Long id, @RequestBody UploadedFileUpdateRequest request) {
-        return uploadedFileService.updateFile(id, request.getOriginalFileName());
+        UploadedFileModel updatedUploadedFileModel = uploadedFileService.updateFile(id, request.getOriginalFileName());
+        return uploadedFileMapper.toResponseDto(updatedUploadedFileModel);
     }
 
     // DELETE /api/files/{id} -> 204

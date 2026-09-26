@@ -1,6 +1,6 @@
-package at.ac.fhtw.swen3.paperless.repository;
+package at.ac.fhtw.swen3.paperless.dal.repository;
 
-import at.ac.fhtw.swen3.paperless.entity.UploadedFile;
+import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
 import org.springframework.data.jpa.repository.JpaRepository; // gives us save(), findAll(), findById(), deleteById(), existsById()
 
 /**
