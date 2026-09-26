@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor
-
 public class UploadedFileResponse {
     private Long id;
     private String originalFileName;
