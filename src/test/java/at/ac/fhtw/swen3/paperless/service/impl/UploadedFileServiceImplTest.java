@@ -38,7 +38,7 @@ class UploadedFileServiceImplTest {
         when(multipartFile.getOriginalFilename()).thenReturn("report.pdf");
         when(multipartFile.getContentType()).thenReturn("application/pdf");
         when(uploadedFileRepository.save(any(UploadedFile.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(uploadedFileMapper.toResponse(any(UploadedFile.class))).thenReturn(response);
+        when(uploadedFileMapper.toResponseDto(any(UploadedFile.class))).thenReturn(response);
 
         assertThat(service.uploadFile(multipartFile)).isSameAs(response);
 
@@ -58,8 +58,8 @@ class UploadedFileServiceImplTest {
 
         // The repository returns two files and the mapper returns their responses
         when(uploadedFileRepository.findAll()).thenReturn(List.of(first, second));
-        when(uploadedFileMapper.toResponse(first)).thenReturn(firstResponse);
-        when(uploadedFileMapper.toResponse(second)).thenReturn(secondResponse);
+        when(uploadedFileMapper.toResponseDto(first)).thenReturn(firstResponse);
+        when(uploadedFileMapper.toResponseDto(second)).thenReturn(secondResponse);
 
         assertThat(service.getAllFiles()).containsExactly(firstResponse, secondResponse);
     }
@@ -71,7 +71,7 @@ class UploadedFileServiceImplTest {
 
         // The file exists and the mapper turns it into the expected response
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
-        when(uploadedFileMapper.toResponse(storedFile)).thenReturn(response);
+        when(uploadedFileMapper.toResponseDto(storedFile)).thenReturn(response);
 
         assertThat(service.getFileById(3L)).isSameAs(response);
     }
@@ -95,7 +95,7 @@ class UploadedFileServiceImplTest {
         // The file is found, saved with the new name and mapped to a response
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
         when(uploadedFileRepository.save(storedFile)).thenReturn(storedFile);
-        when(uploadedFileMapper.toResponse(storedFile)).thenReturn(response);
+        when(uploadedFileMapper.toResponseDto(storedFile)).thenReturn(response);
 
         assertThat(service.updateFile(3L, "new.pdf")).isSameAs(response);
         assertThat(storedFile.getOriginalFileName()).isEqualTo("new.pdf");

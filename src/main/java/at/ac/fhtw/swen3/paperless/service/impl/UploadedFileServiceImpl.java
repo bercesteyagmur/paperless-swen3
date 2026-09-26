@@ -44,7 +44,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
                 .build();
 
         UploadedFile savedFile = uploadedFileRepository.save(uploadedFile);
-        return uploadedFileMapper.toResponse(savedFile);
+        return uploadedFileMapper.toResponseDto(savedFile);
     }
 
     // READ all files
@@ -52,11 +52,9 @@ public class UploadedFileServiceImpl implements UploadedFileService {
     public List<UploadedFileResponse> getAllFiles() {
         List<UploadedFile> allFiles = uploadedFileRepository.findAll();
         List<UploadedFileResponse> result = new ArrayList<>();
-
         for (UploadedFile uploadedFile : allFiles) {
-            result.add(uploadedFileMapper.toResponse(uploadedFile));
+            result.add(uploadedFileMapper.toResponseDto(uploadedFile));
         }
-
         return result;
     }
 
@@ -64,7 +62,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
     @Override
     public UploadedFileResponse getFileById(Long id) {
         UploadedFile uploadedFile = findByIdOrThrow(id);
-        return uploadedFileMapper.toResponse(uploadedFile);
+        return uploadedFileMapper.toResponseDto(uploadedFile);
     }
 
     // UPDATE -> renames originalFileName. 400 if null, 404 if id does not exist.
@@ -78,7 +76,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
         uploadedFile.setOriginalFileName(newFileName);
         UploadedFile savedFile = uploadedFileRepository.save(uploadedFile);
 
-        return uploadedFileMapper.toResponse(savedFile);
+        return uploadedFileMapper.toResponseDto(savedFile);
     }
 
     // DELETE file - 404 if id does not exist
