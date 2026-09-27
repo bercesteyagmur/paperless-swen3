@@ -17,10 +17,16 @@ docker compose up --build
 
 ## CURL
 
-Run the script while the application and database are running:
+Run the script from the project directory while the application and database are running:
 
 ```bash
 ./api-tests/test-endpoints.sh
+```
+
+When the terminal is already inside the `api-tests` directory, use:
+
+```bash
+./test-endpoints.sh
 ```
 
 The script calls every current file endpoint and checks that the deleted file returns HTTP 404

@@ -6,6 +6,9 @@ PAPERLESS_BASE_URL="${PAPERLESS_BASE_URL:-http://localhost:8081}"
 PAPERLESS_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PAPERLESS_SAMPLE_FILE="$PAPERLESS_SCRIPT_DIR/sample-document.txt"
 
+echo "Running endpoint tests against $PAPERLESS_BASE_URL"
+echo
+
 # upload sample file
 PAPERLESS_UPLOAD_RESPONSE=$(curl -fsS \
   -X POST \
@@ -15,30 +18,31 @@ PAPERLESS_UPLOAD_RESPONSE=$(curl -fsS \
 # get uploaded file ID
 PAPERLESS_FILE_ID=$(printf '%s' "$PAPERLESS_UPLOAD_RESPONSE" | python3 -c 'import json, sys; print(json.load(sys.stdin)["id"])')
 
-echo "Uploaded file $PAPERLESS_FILE_ID"
+echo "[PASS] POST /api/files - uploaded file $PAPERLESS_FILE_ID"
 
 # get all files
-curl -fsS "$PAPERLESS_BASE_URL/api/files"
-echo
+curl -fsS -o /dev/null "$PAPERLESS_BASE_URL/api/files"
+echo "[PASS] GET /api/files"
 
 # get uploaded file by ID
-curl -fsS "$PAPERLESS_BASE_URL/api/files/$PAPERLESS_FILE_ID"
-echo
+curl -fsS -o /dev/null "$PAPERLESS_BASE_URL/api/files/$PAPERLESS_FILE_ID"
+echo "[PASS] GET /api/files/$PAPERLESS_FILE_ID"
 
 # rename uploaded file
 curl -fsS \
   -X PATCH \
   -H "Content-Type: application/json" \
   -d '{"originalFileName":"renamed-document.txt"}' \
+  -o /dev/null \
   "$PAPERLESS_BASE_URL/api/files/$PAPERLESS_FILE_ID"
-echo
+echo "[PASS] PATCH /api/files/$PAPERLESS_FILE_ID"
 
 # delete uploaded file
 curl -fsS \
   -X DELETE \
   -o /dev/null \
   "$PAPERLESS_BASE_URL/api/files/$PAPERLESS_FILE_ID"
-
+echo "[PASS] DELETE /api/files/$PAPERLESS_FILE_ID"
 
 # check if file was deleted, should be 404 not found
 PAPERLESS_STATUS=$(curl -sS \
@@ -51,4 +55,6 @@ if [[ "$PAPERLESS_STATUS" != "404" ]]; then
   exit 1
 fi
 
+echo "[PASS] Deleted file returns HTTP 404"
+echo
 echo "All endpoint tests passed"
