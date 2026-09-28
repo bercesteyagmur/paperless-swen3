@@ -6,8 +6,6 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-// This class manages which file attributes we send back to the frontend
-// It is not the same as the UploadedFile entity
 @Getter
 @Builder
 @AllArgsConstructor

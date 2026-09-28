@@ -8,8 +8,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-// This is the model used by the business layer
-// It has no database annotations because it is not stored directly
 @Getter
 @Setter
 @Builder

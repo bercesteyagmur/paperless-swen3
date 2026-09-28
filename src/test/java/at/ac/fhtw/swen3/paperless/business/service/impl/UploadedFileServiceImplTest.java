@@ -37,7 +37,6 @@ class UploadedFileServiceImplTest {
         UploadedFile savedEntity = file(1L, "report.pdf");
         UploadedFileModel savedUploadedFileModel = uploadedFileModel(1L, "report.pdf");
 
-        // The mapper prepares the database entity and maps the saved result back to the business model
         when(uploadedFileModelMapper.toEntity(input)).thenReturn(entity);
         when(uploadedFileRepository.save(entity)).thenReturn(savedEntity);
         when(uploadedFileModelMapper.toModel(savedEntity)).thenReturn(savedUploadedFileModel);
@@ -54,7 +53,6 @@ class UploadedFileServiceImplTest {
         UploadedFileModel firstUploadedFileModel = uploadedFileModel(1L, "first.pdf");
         UploadedFileModel secondUploadedFileModel = uploadedFileModel(2L, "second.pdf");
 
-        // The repository returns entities and the mapper changes them into business models
         when(uploadedFileRepository.findAll()).thenReturn(List.of(first, second));
         when(uploadedFileModelMapper.toModel(first)).thenReturn(firstUploadedFileModel);
         when(uploadedFileModelMapper.toModel(second)).thenReturn(secondUploadedFileModel);
@@ -67,7 +65,6 @@ class UploadedFileServiceImplTest {
         UploadedFile storedFile = file(3L, "report.pdf");
         UploadedFileModel uploadedFileModel = uploadedFileModel(3L, "report.pdf");
 
-        // The stored entity is mapped before it leaves the business layer
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
         when(uploadedFileModelMapper.toModel(storedFile)).thenReturn(uploadedFileModel);
 
@@ -76,7 +73,6 @@ class UploadedFileServiceImplTest {
 
     @Test
     void getByIdRejectsUnknownFile() {
-        // The repository returns empty because the file does not exist
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getFileById(3L))
@@ -92,7 +88,6 @@ class UploadedFileServiceImplTest {
         UploadedFile renamedEntity = file(3L, "new.pdf");
         UploadedFileModel renamedUploadedFileModel = uploadedFileModel(3L, "new.pdf");
 
-        // The entity is mapped to the business model, renamed and mapped back before saving
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
         when(uploadedFileModelMapper.toModel(storedFile)).thenReturn(storedUploadedFileModel);
         when(uploadedFileModelMapper.toEntity(storedUploadedFileModel)).thenReturn(renamedEntity);
@@ -114,7 +109,6 @@ class UploadedFileServiceImplTest {
 
     @Test
     void updateRejectsUnknownFile() {
-        // The file does not exist so save should not be called
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.updateFile(3L, "new.pdf"))
@@ -130,7 +124,6 @@ class UploadedFileServiceImplTest {
         UploadedFileModel uploadedFileModel = uploadedFileModel(3L, "report.pdf");
         UploadedFile entityToDelete = file(3L, "report.pdf");
 
-        // The business model is mapped back to an entity before deleting it
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
         when(uploadedFileModelMapper.toModel(storedFile)).thenReturn(uploadedFileModel);
         when(uploadedFileModelMapper.toEntity(uploadedFileModel)).thenReturn(entityToDelete);
@@ -142,7 +135,6 @@ class UploadedFileServiceImplTest {
 
     @Test
     void deleteRejectsUnknownFile() {
-        // The file does not exist so delete should not be called
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.deleteFile(3L))

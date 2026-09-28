@@ -15,7 +15,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-// Business component for uploaded documents
 @Service
 @RequiredArgsConstructor
 public class UploadedFileServiceImpl implements UploadedFileService {
@@ -31,7 +30,6 @@ public class UploadedFileServiceImpl implements UploadedFileService {
                         "file with id " + id + " was not found"));
     }
 
-    // CREATE -> validates the business model and saves a new row
     @Override
     public UploadedFileModel uploadFile(UploadedFileModel uploadedFileModel) {
         uploadedFileModel.setUploadedAt(LocalDateTime.now());
@@ -41,7 +39,6 @@ public class UploadedFileServiceImpl implements UploadedFileService {
         return uploadedFileModelMapper.toModel(savedEntity);
     }
 
-    // READ all files
     @Override
     public List<UploadedFileModel> getAllFiles() {
         return uploadedFileRepository.findAll().stream()
@@ -49,13 +46,11 @@ public class UploadedFileServiceImpl implements UploadedFileService {
                 .toList();
     }
 
-    // READ one file - 404 if file id does not exist
     @Override
     public UploadedFileModel getFileById(Long id) {
         return findByIdOrThrow(id);
     }
 
-    // UPDATE -> renames originalFileName. 400 if null, 404 if id does not exist.
     @Override
     public UploadedFileModel updateFile(Long id, String newFileName) {
         if (newFileName == null) {
@@ -70,7 +65,6 @@ public class UploadedFileServiceImpl implements UploadedFileService {
         return uploadedFileModelMapper.toModel(savedEntity);
     }
 
-    // DELETE file - 404 if id does not exist
     @Override
     public void deleteFile(Long id) {
         UploadedFileModel uploadedFileModel = findByIdOrThrow(id);

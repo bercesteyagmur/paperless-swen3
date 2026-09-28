@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// Starts only the database part of Spring and uses H2 for the tests
 @DataJpaTest
 class UploadedFileRepositoryTest {
 
@@ -24,7 +23,6 @@ class UploadedFileRepositoryTest {
     void saveStoresFile() {
         UploadedFile file = createFile("report.pdf");
 
-        // Save the file directly to H2 so it gets an id
         UploadedFile savedFile = uploadedFileRepository.saveAndFlush(file);
 
         assertThat(savedFile.getId()).isNotNull();
@@ -35,7 +33,6 @@ class UploadedFileRepositoryTest {
 
     @Test
     void findByIdReturnsStoredFile() {
-        // Save a file first so we can search for its generated id
         UploadedFile savedFile = uploadedFileRepository.saveAndFlush(createFile("report.pdf"));
 
         var result = uploadedFileRepository.findById(savedFile.getId());
@@ -46,7 +43,6 @@ class UploadedFileRepositoryTest {
 
     @Test
     void findByIdReturnsEmptyForUnknownFile() {
-        // This id was never saved so the result should be empty
         var result = uploadedFileRepository.findById(999L);
 
         assertThat(result).isEmpty();
@@ -54,7 +50,6 @@ class UploadedFileRepositoryTest {
 
     @Test
     void findAllReturnsStoredFiles() {
-        // Add two files to check if both are returned
         uploadedFileRepository.save(createFile("first.pdf"));
         uploadedFileRepository.save(createFile("second.pdf"));
 
@@ -73,7 +68,6 @@ class UploadedFileRepositoryTest {
         savedFile.setOriginalFileName("new-name.pdf");
         uploadedFileRepository.saveAndFlush(savedFile);
 
-        // Clear the cache so the file is really loaded from H2 again
         entityManager.clear();
 
         UploadedFile updatedFile = uploadedFileRepository.findById(savedFile.getId()).orElseThrow();
@@ -86,7 +80,6 @@ class UploadedFileRepositoryTest {
 
         uploadedFileRepository.deleteById(savedFile.getId());
 
-        // Flush makes sure the delete is sent to H2 before checking
         uploadedFileRepository.flush();
 
         assertThat(uploadedFileRepository.findById(savedFile.getId())).isEmpty();

@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>4.0.8</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>at.ac.fhtw.swen3</groupId>
 	<artifactId>paperless-rest</artifactId>
@@ -75,9 +75,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- H2 is a tiny in-memory database. We only use it in tests, so we
-		     never depend on a real PostgreSQL server being available while
-		     running our automated test suite. -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
