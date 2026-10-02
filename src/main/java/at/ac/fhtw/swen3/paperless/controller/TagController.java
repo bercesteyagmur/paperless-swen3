@@ -4,7 +4,9 @@ import at.ac.fhtw.swen3.paperless.business.model.TagModel;
 import at.ac.fhtw.swen3.paperless.business.service.TagService;
 import at.ac.fhtw.swen3.paperless.dto.TagRequest;
 import at.ac.fhtw.swen3.paperless.dto.TagResponse;
+import at.ac.fhtw.swen3.paperless.dto.UploadedFileResponse;
 import at.ac.fhtw.swen3.paperless.mapper.TagMapper;
+import at.ac.fhtw.swen3.paperless.mapper.UploadedFileMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ public class TagController {
 
     private final TagService tagService;
     private final TagMapper tagMapper;
+    private final UploadedFileMapper uploadedFileMapper;
 
     @PostMapping
     public ResponseEntity<TagResponse> createTag(@RequestBody TagRequest request) {
@@ -40,6 +43,13 @@ public class TagController {
     @GetMapping("/{id}")
     public TagResponse getTagById(@PathVariable Long id) {
         return tagMapper.toResponseDto(tagService.getTagById(id));
+    }
+
+    @GetMapping("/{tagId}/files")
+    public List<UploadedFileResponse> getFilesForTag(@PathVariable Long tagId) {
+        return tagService.getFilesForTag(tagId).stream()
+                .map(uploadedFileMapper::toResponseDto)
+                .toList();
     }
 
     @PatchMapping("/{id}")
