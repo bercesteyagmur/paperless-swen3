@@ -9,4 +9,10 @@ public interface TagService {
     TagModel createTag(TagModel tagModel);
 
     List<TagModel> getAllTags();
+
+    TagModel getTagById(Long id);
+
+    TagModel updateTag(Long id, TagModel tagModel);
+
+    void deleteTag(Long id);
 }
