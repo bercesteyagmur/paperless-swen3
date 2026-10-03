@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -19,4 +21,7 @@ public class UploadedFileModel {
     private String originalFileName;
     private String fileType;
     private LocalDateTime uploadedAt;
+
+    @Builder.Default
+    private Set<TagModel> tags = new HashSet<>();
 }

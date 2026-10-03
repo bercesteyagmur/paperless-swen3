@@ -1,10 +1,13 @@
 package at.ac.fhtw.swen3.paperless.controller;
 
 import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
+import at.ac.fhtw.swen3.paperless.business.service.TagService;
+import at.ac.fhtw.swen3.paperless.business.service.UploadedFileService;
+import at.ac.fhtw.swen3.paperless.dto.TagResponse;
 import at.ac.fhtw.swen3.paperless.dto.UploadedFileResponse;
 import at.ac.fhtw.swen3.paperless.dto.UploadedFileUpdateRequest;
+import at.ac.fhtw.swen3.paperless.mapper.TagMapper;
 import at.ac.fhtw.swen3.paperless.mapper.UploadedFileMapper;
-import at.ac.fhtw.swen3.paperless.business.service.UploadedFileService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +26,8 @@ public class UploadedFileController {
 
     private final UploadedFileService uploadedFileService;
     private final UploadedFileMapper uploadedFileMapper;
+    private final TagService tagService;
+    private final TagMapper tagMapper;
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<UploadedFileResponse> uploadFile(@RequestParam("file") MultipartFile file) {
@@ -58,5 +63,24 @@ public class UploadedFileController {
     public ResponseEntity<Void> deleteFile(@PathVariable Long id) {
         uploadedFileService.deleteFile(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{fileId}/tags/{tagId}")
+    public ResponseEntity<Void> addTagToFile(@PathVariable Long fileId, @PathVariable Long tagId) {
+        tagService.addTagToFile(fileId, tagId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{fileId}/tags/{tagId}")
+    public ResponseEntity<Void> removeTagFromFile(@PathVariable Long fileId, @PathVariable Long tagId) {
+        tagService.removeTagFromFile(fileId, tagId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{fileId}/tags")
+    public List<TagResponse> getTagsForFile(@PathVariable Long fileId) {
+        return tagService.getTagsForFile(fileId).stream()
+                .map(tagMapper::toResponseDto)
+                .toList();
     }
 }
