@@ -1,0 +1,15 @@
+<div class="upload-box">
+  <h2>Upload Document</h2>
+
+  <!-- We learned how to use input type="file" from here: https://blog.angular-university.io/angular-file-upload/ -->
+  <input type="file" (change)="onFileSelected($event)" />
+  <button type="button" (click)="uploadFile()">Upload</button>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (successMessage()) {
+    <p class="success">{{ successMessage() }}</p>
+  }
+</div>
