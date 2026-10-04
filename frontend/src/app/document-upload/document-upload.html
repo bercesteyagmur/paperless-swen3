@@ -1,0 +1,10 @@
+<input type="file" (change)="onFileSelected($event)" />
+<button type="button" (click)="uploadFile()">Upload</button>
+
+@if (errorMessage()) {
+  <p>{{ errorMessage() }}</p>
+}
+
+@if (successMessage()) {
+  <p>{{ successMessage() }}</p>
+}

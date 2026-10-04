@@ -21,12 +21,9 @@ export class DocumentService {
     });
   }
 
-  uploadDocument(file: File): void {
+  uploadDocument(file: File): Observable<DocumentResponse> {
     const formData = new FormData();
     formData.append('file', file);
-    const request: Observable<DocumentResponse> = this.http.post<DocumentResponse>(this.apiUrl, formData);
-    request.subscribe((uploadedDocument) => {
-      this._documents.update((documents) => [...documents, uploadedDocument]);
-    });
+    return this.http.post<DocumentResponse>(this.apiUrl, formData);
   }
 }
