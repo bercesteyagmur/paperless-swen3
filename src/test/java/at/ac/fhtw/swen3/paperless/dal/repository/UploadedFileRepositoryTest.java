@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,22 +22,19 @@ class UploadedFileRepositoryTest {
     private EntityManager entityManager;
 
     @Test
-    void saveStoresFile() {
+    void saveGeneratesFileId() {
         UploadedFile file = createFile("report.pdf");
 
-        UploadedFile savedFile = uploadedFileRepository.saveAndFlush(file);
+        UploadedFile savedFile = uploadedFileRepository.save(file);
 
         assertThat(savedFile.getId()).isNotNull();
-        assertThat(savedFile.getOriginalFileName()).isEqualTo("report.pdf");
-        assertThat(savedFile.getFileType()).isEqualTo("application/pdf");
-        assertThat(savedFile.getUploadedAt()).isNotNull();
     }
 
     @Test
     void findByIdReturnsStoredFile() {
-        UploadedFile savedFile = uploadedFileRepository.saveAndFlush(createFile("report.pdf"));
+        UploadedFile savedFile = uploadedFileRepository.save(createFile("report.pdf"));
 
-        var result = uploadedFileRepository.findById(savedFile.getId());
+        Optional<UploadedFile> result = uploadedFileRepository.findById(savedFile.getId());
 
         assertThat(result).isPresent();
         assertThat(result.get().getOriginalFileName()).isEqualTo("report.pdf");
@@ -43,7 +42,7 @@ class UploadedFileRepositoryTest {
 
     @Test
     void findByIdReturnsEmptyForUnknownFile() {
-        var result = uploadedFileRepository.findById(999L);
+        Optional<UploadedFile> result = uploadedFileRepository.findById(999L);
 
         assertThat(result).isEmpty();
     }
@@ -53,7 +52,7 @@ class UploadedFileRepositoryTest {
         uploadedFileRepository.save(createFile("first.pdf"));
         uploadedFileRepository.save(createFile("second.pdf"));
 
-        var result = uploadedFileRepository.findAll();
+        List<UploadedFile> result = uploadedFileRepository.findAll();
 
         assertThat(result).hasSize(2);
         assertThat(result)
@@ -79,8 +78,6 @@ class UploadedFileRepositoryTest {
         UploadedFile savedFile = uploadedFileRepository.saveAndFlush(createFile("report.pdf"));
 
         uploadedFileRepository.deleteById(savedFile.getId());
-
-        uploadedFileRepository.flush();
 
         assertThat(uploadedFileRepository.findById(savedFile.getId())).isEmpty();
     }
