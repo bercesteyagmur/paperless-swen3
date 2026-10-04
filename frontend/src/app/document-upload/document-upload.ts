@@ -13,7 +13,8 @@ export class DocumentUpload {
   uploadedFile = signal<File | null>(null);
 
   errorMessage = signal('');
-  successMessage = signal('');
+  uploadSuccess = this.service.uploadSuccess;
+  uploadError = this.service.uploadError;
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -25,7 +26,8 @@ export class DocumentUpload {
 
   uploadFile(): void {
     const file = this.uploadedFile();
-    this.successMessage.set('');
+    this.uploadSuccess.set('');
+    this.uploadError.set('');
     if (file == null) {
       this.errorMessage.set('Please upload a file');
     } else if (!file.name.toLowerCase().endsWith('.pdf')) {
@@ -33,7 +35,6 @@ export class DocumentUpload {
     } else {
       this.errorMessage.set('');
       this.service.uploadDocument(file);
-      this.successMessage.set(file.name + ' is uploaded');
     }
   }
 }

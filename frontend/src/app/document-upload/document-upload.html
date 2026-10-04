@@ -9,7 +9,11 @@
     <p class="error">{{ errorMessage() }}</p>
   }
 
-  @if (successMessage()) {
-    <p class="success">{{ successMessage() }}</p>
+  @if (uploadError()) {
+    <p class="error">{{ uploadError() }}</p>
+  }
+
+  @if (uploadSuccess()) {
+    <p class="success">{{ uploadSuccess() }}</p>
   }
 </div>
