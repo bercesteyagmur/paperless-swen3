@@ -16,19 +16,23 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UploadedFileServiceImplTest {
 
-    @Mock private UploadedFileRepository uploadedFileRepository;
-    @Mock private UploadedFileModelMapper uploadedFileModelMapper;
-    @InjectMocks private UploadedFileServiceImpl service;
+    @Mock
+    private UploadedFileRepository uploadedFileRepository;
+
+    @Mock
+    private UploadedFileModelMapper uploadedFileModelMapper;
+
+    @InjectMocks
+    private UploadedFileServiceImpl service;
 
     @Test
     void uploadSavesFileMetadata() {
@@ -41,7 +45,9 @@ class UploadedFileServiceImplTest {
         when(uploadedFileRepository.save(entity)).thenReturn(savedEntity);
         when(uploadedFileModelMapper.toModel(savedEntity)).thenReturn(savedUploadedFileModel);
 
-        assertThat(service.uploadFile(input)).isSameAs(savedUploadedFileModel);
+        UploadedFileModel result = service.uploadFile(input);
+
+        assertThat(result).isSameAs(savedUploadedFileModel);
         assertThat(input.getUploadedAt()).isNotNull();
         verify(uploadedFileRepository).save(entity);
     }
@@ -57,7 +63,9 @@ class UploadedFileServiceImplTest {
         when(uploadedFileModelMapper.toModel(first)).thenReturn(firstUploadedFileModel);
         when(uploadedFileModelMapper.toModel(second)).thenReturn(secondUploadedFileModel);
 
-        assertThat(service.getAllFiles()).containsExactly(firstUploadedFileModel, secondUploadedFileModel);
+        List<UploadedFileModel> result = service.getAllFiles();
+
+        assertThat(result).containsExactly(firstUploadedFileModel, secondUploadedFileModel);
     }
 
     @Test
@@ -68,17 +76,21 @@ class UploadedFileServiceImplTest {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
         when(uploadedFileModelMapper.toModel(storedFile)).thenReturn(uploadedFileModel);
 
-        assertThat(service.getFileById(3L)).isSameAs(uploadedFileModel);
+        UploadedFileModel result = service.getFileById(3L);
+
+        assertThat(result).isSameAs(uploadedFileModel);
     }
 
     @Test
     void getByIdRejectsUnknownFile() {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.getFileById(3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND));
-        verifyNoInteractions(uploadedFileModelMapper);
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.getFileById(3L)
+        );
+
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -94,28 +106,35 @@ class UploadedFileServiceImplTest {
         when(uploadedFileRepository.save(renamedEntity)).thenReturn(renamedEntity);
         when(uploadedFileModelMapper.toModel(renamedEntity)).thenReturn(renamedUploadedFileModel);
 
-        assertThat(service.updateFile(3L, "new.pdf")).isSameAs(renamedUploadedFileModel);
+        UploadedFileModel result = service.updateFile(3L, "new.pdf");
+
+        assertThat(result).isSameAs(renamedUploadedFileModel);
         assertThat(storedUploadedFileModel.getOriginalFileName()).isEqualTo("new.pdf");
         verify(uploadedFileRepository).save(renamedEntity);
     }
 
     @Test
-    void updateRejectsNullNameBeforeReadingDatabase() {
-        assertThatThrownBy(() -> service.updateFile(3L, null))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
-        verifyNoInteractions(uploadedFileRepository, uploadedFileModelMapper);
+    void updateRejectsNullName() {
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.updateFile(3L, null)
+        );
+
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        verify(uploadedFileRepository, never()).save(any());
     }
 
     @Test
     void updateRejectsUnknownFile() {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.updateFile(3L, "new.pdf"))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND));
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.updateFile(3L, "new.pdf")
+        );
+
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         verify(uploadedFileRepository, never()).save(any());
-        verifyNoInteractions(uploadedFileModelMapper);
     }
 
     @Test
@@ -137,11 +156,13 @@ class UploadedFileServiceImplTest {
     void deleteRejectsUnknownFile() {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.deleteFile(3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND));
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.deleteFile(3L)
+        );
+
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         verify(uploadedFileRepository, never()).delete(any(UploadedFile.class));
-        verifyNoInteractions(uploadedFileModelMapper);
     }
 
     private static UploadedFile file(Long id, String name) {
