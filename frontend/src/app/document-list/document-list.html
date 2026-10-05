@@ -1,0 +1,31 @@
+<div class="list-box">
+  <h2>Uploaded Files</h2>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (documents().length === 0 && !errorMessage()) {
+    <p>No files uploaded yet</p>
+  }
+
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Tag</th>
+        <th>Uploaded at</th>
+      </tr>
+      @for (document of documents(); track document.id) {
+        <tr>
+          <td>{{ document.originalFileName }}</td>
+          <td>
+            @for (tag of document.tags; track tag.id) {
+              <span class="tag">{{ tag.name }}</span>
+            }
+          </td>
+          <td>{{ document.uploadedAt }}</td>
+        </tr>
+      }
+    </table>
+
+</div>
