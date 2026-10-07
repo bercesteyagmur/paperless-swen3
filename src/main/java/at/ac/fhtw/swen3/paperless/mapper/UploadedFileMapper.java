@@ -4,7 +4,7 @@ import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
 import at.ac.fhtw.swen3.paperless.dto.UploadedFileResponse;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = TagMapper.class)
 public interface UploadedFileMapper {
 
     UploadedFileResponse toResponseDto(UploadedFileModel uploadedFileModel);

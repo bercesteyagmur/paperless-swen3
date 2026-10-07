@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -14,4 +15,5 @@ public class UploadedFileResponse {
     private String originalFileName;
     private String fileType;
     private LocalDateTime uploadedAt;
+    private List<TagResponse> tags;
 }
