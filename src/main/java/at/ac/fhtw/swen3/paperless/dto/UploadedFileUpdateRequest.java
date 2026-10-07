@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UploadedFileUpdateRequest {
-    private String originalFileName;
+    private String newFileName;
 }

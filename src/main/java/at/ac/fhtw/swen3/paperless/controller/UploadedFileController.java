@@ -55,7 +55,7 @@ public class UploadedFileController {
 
     @PatchMapping("/{id}")
     public UploadedFileResponse updateFile(@PathVariable Long id, @RequestBody UploadedFileUpdateRequest request) {
-        UploadedFileModel updatedUploadedFileModel = uploadedFileService.updateFile(id, request.getOriginalFileName());
+        UploadedFileModel updatedUploadedFileModel = uploadedFileService.updateFile(id, request.getNewFileName());
         return uploadedFileMapper.toResponseDto(updatedUploadedFileModel);
     }
 
