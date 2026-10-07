@@ -1,5 +1,5 @@
 export interface DocumentRequest {
-  originalFileName: string;
+  newFileName: string;
 }
 
 export interface TagResponse {

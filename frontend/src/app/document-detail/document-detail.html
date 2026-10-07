@@ -1,0 +1,25 @@
+<div class="detail-box">
+  <h2>File Details</h2>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (file()) {
+    <p><b>Name:</b> {{ file()?.originalFileName }}</p>
+    <p><b>Type:</b> {{ file()?.fileType }}</p>
+    <p><b>Uploaded at:</b> {{ file()?.uploadedAt }}</p>
+    <p>
+      <b>Tags:</b>
+      @for (tag of file()?.tags; track tag.id) {
+        <span class="tag">{{ tag.name }}</span>
+      }
+    </p>
+
+    <label for="new-name">New name</label>
+    <input id="new-name" type="text" [value]="newName()" (input)="onNewNameTyped($event)" />
+    <button type="button" (click)="renameFile()">Rename</button>
+  }
+
+  <p><a routerLink="/files">Back to list</a></p>
+</div>

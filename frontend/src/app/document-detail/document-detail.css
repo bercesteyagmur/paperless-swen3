@@ -1,0 +1,43 @@
+.detail-box {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: Helvetica, sans-serif;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+input {
+  margin-right: 4px;
+  padding: 4px;
+}
+
+button {
+  padding: 5px 10px;
+  border-radius: 4px;
+  background-color: #1976d2;
+  color: white;
+  cursor: pointer;
+}
+
+.error {
+  color: red;
+}
+
+.tag {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background-color: #e0e0e0;
+  font-size: 12px;
+}

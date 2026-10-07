@@ -38,3 +38,21 @@ th {
   background-color: #e0e0e0;
   font-size: 12px;
 }
+
+.actions {
+  white-space: nowrap;
+}
+
+.actions button {
+  margin-right: 4px;
+  padding: 4px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.actions .delete {
+  color: red;
+  border-color: red;
+}
