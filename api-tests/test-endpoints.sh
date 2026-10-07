@@ -27,7 +27,7 @@ echo "[PASS] GET /api/files/$PAPERLESS_FILE_ID"
 curl -fsS \
   -X PATCH \
   -H "Content-Type: application/json" \
-  -d '{"originalFileName":"renamed-document.txt"}' \
+  -d '{"newFileName":"renamed-document.txt"}' \
   -o /dev/null \
   "$PAPERLESS_BASE_URL/api/files/$PAPERLESS_FILE_ID"
 echo "[PASS] PATCH /api/files/$PAPERLESS_FILE_ID"

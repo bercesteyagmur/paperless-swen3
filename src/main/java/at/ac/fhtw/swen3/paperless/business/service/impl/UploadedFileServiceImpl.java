@@ -57,7 +57,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
     @Override
     public UploadedFileModel updateFile(Long id, String newFileName) {
         if (newFileName == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "originalFileName must not be null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "newFileName must not be null");
         }
 
         UploadedFileModel uploadedFileModel = findByIdOrThrow(id);
