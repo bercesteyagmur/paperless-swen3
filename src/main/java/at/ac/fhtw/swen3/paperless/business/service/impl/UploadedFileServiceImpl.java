@@ -63,6 +63,11 @@ public class UploadedFileServiceImpl implements UploadedFileService {
         }
 
         UploadedFileModel uploadedFileModel = findByIdOrThrow(id);
+
+        if (uploadedFileRepository.existsByOriginalFileNameIgnoreCaseAndIdNot(newFileName, id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A file with this name already exists");
+        }
+
         uploadedFileModel.setOriginalFileName(newFileName);
 
         UploadedFile entity = uploadedFileModelMapper.toEntity(uploadedFileModel);

@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { DocumentService } from '../shared/document.service';
 import { DocumentResponse, TagResponse } from '../shared/document.model';
@@ -71,8 +72,12 @@ export class DocumentDetail {
         next: () => {
           this.router.navigate(['/files']);
         },
-        error: () => {
-          this.errorMessage.set('The file could not be renamed.');
+        error: (error: HttpErrorResponse) => {
+          if (error.status === 409) {
+            this.errorMessage.set(name + ' already exists.');
+          } else {
+            this.errorMessage.set('The file could not be renamed.');
+          }
         },
       });
     }

@@ -139,6 +139,25 @@ class UploadedFileServiceImplTest {
     }
 
     @Test
+    void updateRejectsExistingFileName() {
+        UploadedFile storedFile = file(3L, "old.pdf");
+        UploadedFileModel storedUploadedFileModel = uploadedFileModel(3L, "old.pdf");
+
+        when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
+        when(uploadedFileModelMapper.toModel(storedFile)).thenReturn(storedUploadedFileModel);
+        when(uploadedFileRepository.existsByOriginalFileNameIgnoreCaseAndIdNot("report.pdf", 3L))
+                .thenReturn(true);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.updateFile(3L, "report.pdf")
+        );
+
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        verify(uploadedFileRepository, never()).save(any());
+    }
+
+    @Test
     void updateRejectsUnknownFile() {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
