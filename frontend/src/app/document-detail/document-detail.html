@@ -22,8 +22,13 @@
     <input id="new-name" type="text" [value]="newName()" (input)="onInputTyped($event, 'name')" />
     <button type="button" (click)="renameFile()">Rename</button>
 
-    <label for="tag-name">New tag</label>
-    <input id="tag-name" type="text" [value]="tagName()" (input)="onInputTyped($event, 'tag')" />
+    <label for="tag-name">Select or create tag</label>
+    <input id="tag-name" list="tag-options" type="text" placeholder="Enter a new tag or choose one" [value]="tagName()" (input)="onInputTyped($event, 'tag')" />
+    <datalist id="tag-options">
+      @for (tag of tags(); track tag.id) {
+        <option [value]="tag.name"></option>
+      }
+    </datalist>
     <button type="button" (click)="onAddTagButtonClicked()">Add tag</button>
   }
 

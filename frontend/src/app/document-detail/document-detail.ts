@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DocumentService } from '../shared/document.service';
-import { DocumentResponse } from '../shared/document.model';
+import { DocumentResponse, TagResponse } from '../shared/document.model';
 
 @Component({
   selector: 'app-document-detail',
@@ -15,6 +15,7 @@ export class DocumentDetail {
   private router = inject(Router);
 
   file = signal<DocumentResponse | null>(null);
+  tags = signal<TagResponse[]>([]);
   newName = signal('');
   tagName = signal('');
   errorMessage = signal('');
@@ -24,6 +25,7 @@ export class DocumentDetail {
     if (id != null) {
       this.loadFile(id);
     }
+    this.loadTags();
   }
 
   loadFile(id: number): void {
@@ -34,6 +36,17 @@ export class DocumentDetail {
       },
       error: () => {
         this.errorMessage.set('The file could not be loaded.');
+      },
+    });
+  }
+
+  loadTags(): void {
+    this.service.getTags().subscribe({
+      next: (tagsFromBackend) => {
+        this.tags.set(tagsFromBackend);
+      },
+      error: () => {
+        this.errorMessage.set('Tags could not be loaded.');
       },
     });
   }
@@ -76,6 +89,7 @@ export class DocumentDetail {
         next: (updatedFileFromBackend) => {
           this.tagName.set('');
           this.file.set(updatedFileFromBackend);
+          this.loadTags();
         },
         error: () => {
           this.errorMessage.set('The tag could not be added to the file.');
