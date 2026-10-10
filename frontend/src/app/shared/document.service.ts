@@ -12,7 +12,12 @@ export class DocumentService {
 
   private http = inject(HttpClient);
 
-  selectedFileId = signal<number | null>(null);
+  private selectedId = signal<number | null>(null);
+  selectedFileId = this.selectedId.asReadonly();
+
+  setSelectedFileId(id: number): void {
+    this.selectedId.set(id);
+  }
 
   getDocuments(): Observable<DocumentResponse[]> {
     return this.http.get<DocumentResponse[]>(this.apiUrl);
@@ -36,6 +41,10 @@ export class DocumentService {
 
   deleteDocument(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  addTagToDocument(id: number, name: string): Observable<DocumentResponse> {
+    return this.http.post<DocumentResponse>(`${this.apiUrl}/${id}/tags`, { name });
   }
 
 }

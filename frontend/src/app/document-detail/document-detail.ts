@@ -16,6 +16,7 @@ export class DocumentDetail {
 
   file = signal<DocumentResponse | null>(null);
   newName = signal('');
+  tagName = signal('');
   errorMessage = signal('');
 
   constructor() {
@@ -27,9 +28,9 @@ export class DocumentDetail {
 
   loadFile(id: number): void {
     this.service.getDocument(id).subscribe({
-      next: (file) => {
-        this.file.set(file);
-        this.newName.set(file.originalFileName);
+      next: (fileFromBackend) => {
+        this.file.set(fileFromBackend);
+        this.newName.set(fileFromBackend.originalFileName);
       },
       error: () => {
         this.errorMessage.set('The file could not be loaded.');
@@ -37,17 +38,19 @@ export class DocumentDetail {
     });
   }
 
-  onNewNameTyped(event: Event): void {
+  onInputTyped(event: Event, field: string): void {
     const input = event.target as HTMLInputElement;
-    this.newName.set(input.value);
+    if (field == 'name') {
+      this.newName.set(input.value);
+    } else if (field == 'tag') {
+      this.tagName.set(input.value);
+    }
   }
 
   renameFile(): void {
-    const file = this.file();
+    const file = this.file()!;
     const name = this.newName().trim();
-    if (file == null) {
-      this.errorMessage.set('There is no file to rename.');
-    } else if (name === '') {
+    if (name == '') {
       this.errorMessage.set('The file name cannot be empty. Please write a name.');
     } else {
       this.errorMessage.set('');
@@ -57,6 +60,25 @@ export class DocumentDetail {
         },
         error: () => {
           this.errorMessage.set('The file could not be renamed.');
+        },
+      });
+    }
+  }
+
+  onAddTagButtonClicked(): void {
+    const file = this.file()!;
+    const tag = this.tagName().trim();
+    if (tag == '') {
+      this.errorMessage.set('The tag tag cannot be empty. Please write a tag.');
+    } else {
+      this.errorMessage.set('');
+      this.service.addTagToDocument(file.id, tag).subscribe({
+        next: (updatedFileFromBackend) => {
+          this.tagName.set('');
+          this.file.set(updatedFileFromBackend);
+        },
+        error: () => {
+          this.errorMessage.set('The tag could not be added to the file.');
         },
       });
     }

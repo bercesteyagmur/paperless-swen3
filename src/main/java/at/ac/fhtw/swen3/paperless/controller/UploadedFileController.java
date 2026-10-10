@@ -3,6 +3,7 @@ package at.ac.fhtw.swen3.paperless.controller;
 import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
 import at.ac.fhtw.swen3.paperless.business.service.TagService;
 import at.ac.fhtw.swen3.paperless.business.service.UploadedFileService;
+import at.ac.fhtw.swen3.paperless.dto.TagRequest;
 import at.ac.fhtw.swen3.paperless.dto.TagResponse;
 import at.ac.fhtw.swen3.paperless.dto.UploadedFileResponse;
 import at.ac.fhtw.swen3.paperless.dto.UploadedFileUpdateRequest;
@@ -65,10 +66,10 @@ public class UploadedFileController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{fileId}/tags/{tagId}")
-    public ResponseEntity<Void> addTagToFile(@PathVariable Long fileId, @PathVariable Long tagId) {
-        tagService.addTagToFile(fileId, tagId);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/{fileId}/tags")
+    public UploadedFileResponse addTag(@PathVariable Long fileId, @RequestBody TagRequest request) {
+        UploadedFileModel updatedFile = tagService.addTag(fileId, request.getName());
+        return uploadedFileMapper.toResponseDto(updatedFile);
     }
 
     @DeleteMapping("/{fileId}/tags/{tagId}")

@@ -14,7 +14,6 @@ export class DocumentUpload {
 
   errorMessage = signal('');
   uploadSuccess = signal('');
-  uploadError = signal('');
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -27,7 +26,6 @@ export class DocumentUpload {
   uploadFile(): void {
     const file = this.uploadedFile();
     this.uploadSuccess.set('');
-    this.uploadError.set('');
     if (file == null) {
       this.errorMessage.set('Please upload a file');
     } else if (!file.name.toLowerCase().endsWith('.pdf')) {
@@ -35,11 +33,11 @@ export class DocumentUpload {
     } else {
       this.errorMessage.set('');
       this.service.uploadDocument(file).subscribe({
-        next: (uploadedDocument) => {
-          this.uploadSuccess.set(uploadedDocument.originalFileName + ' is uploaded');
+        next: (documentFromBackend) => {
+          this.uploadSuccess.set(documentFromBackend.originalFileName + ' is uploaded');
         },
         error: () => {
-          this.uploadError.set('Upload failed, please try again');
+          this.errorMessage.set('Upload failed, please try again');
         },
       });
     }

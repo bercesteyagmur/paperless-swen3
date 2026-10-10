@@ -30,7 +30,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagModel createTag(TagModel tagModel) {
-        String name = getValidName(tagModel);
+        String name = getValidName(tagModel.getName());
         if (tagRepository.existsByNameIgnoreCase(name)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "tag already exists");
         }
@@ -55,7 +55,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagModel updateTag(Long id, TagModel tagModel) {
         Tag tag = findTagByIdOrThrow(id);
-        String name = getValidName(tagModel);
+        String name = getValidName(tagModel.getName());
 
         if (!tag.getName().equalsIgnoreCase(name) && tagRepository.existsByNameIgnoreCase(name)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "tag already exists");
@@ -77,19 +77,20 @@ public class TagServiceImpl implements TagService {
 
 
     @Override
-    public void addTagToFile(Long fileId, Long tagId) {
+    public UploadedFileModel addTag(Long fileId, String name) {
+        String tagName = getValidName(name);
         UploadedFile file = findFileByIdOrThrow(fileId);
-        Tag tag = findTagByIdOrThrow(tagId);
+        Tag tag = tagRepository.findByNameIgnoreCase(tagName).orElse(null);
 
-        boolean alreadyAssigned = file.getTags().stream()
-                .anyMatch(fileTag -> fileTag.getId().equals(tagId));
-
-        if (alreadyAssigned) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "tag is already assigned to file");
+        if (tag == null) {
+            tag = new Tag();
+            tag.setName(tagName);
+            tag = tagRepository.save(tag);
         }
 
         file.getTags().add(tag);
-        uploadedFileRepository.save(file);
+        UploadedFile savedFile = uploadedFileRepository.save(file);
+        return uploadedFileModelMapper.toModel(savedFile);
     }
 
     @Override
@@ -121,11 +122,11 @@ public class TagServiceImpl implements TagService {
                 .toList();
     }
 
-    private String getValidName(TagModel tagModel) {
-        if (tagModel == null || tagModel.getName() == null || tagModel.getName().isBlank()) {
+    private String getValidName(String name) {
+        if (name == null || name.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tag name must not be empty");
         }
-        return tagModel.getName().trim();
+        return name.trim();
     }
 
     private Tag findTagByIdOrThrow(Long id) {

@@ -17,7 +17,7 @@ public interface TagService {
 
     void deleteTag(Long id);
 
-    void addTagToFile(Long fileId, Long tagId);
+    UploadedFileModel addTag(Long fileId, String name);
 
     void removeTagFromFile(Long fileId, Long tagId);
 
