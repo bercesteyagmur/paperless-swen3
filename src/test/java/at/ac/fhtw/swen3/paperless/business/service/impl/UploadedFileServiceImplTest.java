@@ -53,6 +53,20 @@ class UploadedFileServiceImplTest {
     }
 
     @Test
+    void uploadRejectsExistingFileName() {
+        UploadedFileModel input = uploadedFileModel(null, "report.pdf");
+        when(uploadedFileRepository.existsByOriginalFileNameIgnoreCase("report.pdf")).thenReturn(true);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.uploadFile(input)
+        );
+
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        verify(uploadedFileRepository, never()).save(any());
+    }
+
+    @Test
     void listMapsEveryStoredFile() {
         UploadedFile first = file(1L, "first.pdf");
         UploadedFile second = file(2L, "second.pdf");
@@ -121,6 +135,25 @@ class UploadedFileServiceImplTest {
         );
 
         assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        verify(uploadedFileRepository, never()).save(any());
+    }
+
+    @Test
+    void updateRejectsExistingFileName() {
+        UploadedFile storedFile = file(3L, "old.pdf");
+        UploadedFileModel storedUploadedFileModel = uploadedFileModel(3L, "old.pdf");
+
+        when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
+        when(uploadedFileModelMapper.toModel(storedFile)).thenReturn(storedUploadedFileModel);
+        when(uploadedFileRepository.existsByOriginalFileNameIgnoreCaseAndIdNot("report.pdf", 3L))
+                .thenReturn(true);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.updateFile(3L, "report.pdf")
+        );
+
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         verify(uploadedFileRepository, never()).save(any());
     }
 

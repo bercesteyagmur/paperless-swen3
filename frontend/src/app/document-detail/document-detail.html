@@ -7,21 +7,27 @@
 
   @if (file(); as file) {
     <p><b>Name:</b> {{ file.originalFileName }}</p>
-    <p><b>Type:</b> {{ file.fileType }}</p>
     <p><b>Uploaded at:</b> {{ file.uploadedAt }}</p>
-    <p>
-      <b>Tags:</b>
+    <p><b>Tags:</b>
       @for (tag of file.tags; track tag.id) {
-        <span class="tag">{{ tag.name }}</span>
+        <span class="tag">
+          {{ tag.name }}
+          <button class="remove-tag" type="button"  (click)="onRemoveTagButtonClicked(tag.id)">×</button>
+        </span>
       }
     </p>
 
     <label for="new-name">New name</label>
-    <input id="new-name" type="text" [value]="newName()" (input)="onInputTyped($event, 'name')" />
+    <input id="new-name" type="text" required maxlength="100" [value]="newName()" (input)="onInputTyped($event, 'name')" />
     <button type="button" (click)="renameFile()">Rename</button>
 
-    <label for="tag-name">New tag</label>
-    <input id="tag-name" type="text" [value]="tagName()" (input)="onInputTyped($event, 'tag')" />
+    <label for="tag-name">Select or create tag</label>
+    <input id="tag-name" list="tag-options" type="text" required maxlength="50" placeholder="Enter a new tag or choose one" [value]="tagName()" (input)="onInputTyped($event, 'tag')" />
+    <datalist id="tag-options">
+      @for (tag of tags(); track tag.id) {
+        <option [value]="tag.name"></option>
+      }
+    </datalist>
     <button type="button" (click)="onAddTagButtonClicked()">Add tag</button>
   }
 

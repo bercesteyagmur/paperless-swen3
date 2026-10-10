@@ -33,6 +33,10 @@ public class UploadedFileServiceImpl implements UploadedFileService {
 
     @Override
     public UploadedFileModel uploadFile(UploadedFileModel uploadedFileModel) {
+        if (uploadedFileRepository.existsByOriginalFileNameIgnoreCase(uploadedFileModel.getOriginalFileName())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A file with this name already exists");
+        }
+
         uploadedFileModel.setUploadedAt(LocalDateTime.now());
 
         UploadedFile entity = uploadedFileModelMapper.toEntity(uploadedFileModel);
@@ -59,6 +63,11 @@ public class UploadedFileServiceImpl implements UploadedFileService {
         }
 
         UploadedFileModel uploadedFileModel = findByIdOrThrow(id);
+
+        if (uploadedFileRepository.existsByOriginalFileNameIgnoreCaseAndIdNot(newFileName, id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A file with this name already exists");
+        }
+
         uploadedFileModel.setOriginalFileName(newFileName);
 
         UploadedFile entity = uploadedFileModelMapper.toEntity(uploadedFileModel);
