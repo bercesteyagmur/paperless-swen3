@@ -29,3 +29,5 @@ build/
 .vscode/
 
 .env
+
+.DS_Store
