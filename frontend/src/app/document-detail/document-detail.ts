@@ -66,6 +66,8 @@ export class DocumentDetail {
     const name = this.newName().trim();
     if (name == '') {
       this.errorMessage.set('The file name cannot be empty. Please write a name.');
+    } else if (name.length > 100) {
+      this.errorMessage.set('The file name cannot be longer than 100 characters.');
     } else {
       this.errorMessage.set('');
       this.service.renameDocument(file.id, name).subscribe({
@@ -88,6 +90,8 @@ export class DocumentDetail {
     const tag = this.tagName().trim();
     if (tag == '') {
       this.errorMessage.set('The tag tag cannot be empty. Please write a tag.');
+    } else if (tag.length > 50) {
+      this.errorMessage.set('The tag cannot be longer than 50 characters.');
     } else if (file.tags.some(fileTag => fileTag.name.toLowerCase() == tag.toLowerCase())) {
       this.errorMessage.set('This tag is already assigned to the file.');
     } else {
