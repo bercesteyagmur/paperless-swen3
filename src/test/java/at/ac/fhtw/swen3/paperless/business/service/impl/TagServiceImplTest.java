@@ -110,36 +110,31 @@ class TagServiceImplTest {
     }
 
     @Test
-    void addTagStoresRelationship() {
+    void addTagUsesExistingTag() {
         UploadedFile file = file(1L, "invoice.pdf");
         Tag tag = tag(2L, "Invoice");
 
         when(uploadedFileRepository.findById(1L)).thenReturn(Optional.of(file));
-        when(tagRepository.findById(2L)).thenReturn(Optional.of(tag));
+        when(tagRepository.findByNameIgnoreCase("Invoice")).thenReturn(Optional.of(tag));
 
-        service.addTagToFile(1L, 2L);
+        service.addTag(1L, "Invoice");
 
         assertThat(file.getTags()).containsExactly(tag);
-        verify(uploadedFileRepository).save(file);
+        verify(tagRepository, never()).save(any());
     }
 
     @Test
-    void addTagRejectsDuplicateRelationship() {
-        Tag tag = tag(2L, "Invoice");
+    void addTagCreatesNewTag() {
         UploadedFile file = file(1L, "invoice.pdf");
-        file.getTags().add(tag);
+        Tag savedTag = tag(3L, "October");
 
         when(uploadedFileRepository.findById(1L)).thenReturn(Optional.of(file));
-        when(tagRepository.findById(2L)).thenReturn(Optional.of(tag));
+        when(tagRepository.findByNameIgnoreCase("October")).thenReturn(Optional.empty());
+        when(tagRepository.save(any(Tag.class))).thenReturn(savedTag);
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
-                () -> service.addTagToFile(1L, 2L)
-        );
+        service.addTag(1L, "October");
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        assertThat(file.getTags()).containsExactly(tag);
-        verify(uploadedFileRepository, never()).save(any());
+        assertThat(file.getTags()).containsExactly(savedTag);
     }
 
     @Test

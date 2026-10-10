@@ -1,4 +1,4 @@
-<div class="list-box">
+<div class="box list-box">
   <h2>Uploaded Files</h2>
 
   @if (errorMessage()) {
@@ -27,7 +27,7 @@
           <td>{{ document.uploadedAt }}</td>
           <td class="actions">
             <button (click)="onEditButtonClicked(document.id)">Edit</button>
-            <button class="delete" (click)="onDeleteButtonClicked(document)" [disabled]="documentToDelete()?.id === document.id">Delete</button>
+            <button class="delete" (click)="onDeleteButtonClicked(document)">Delete</button>
           </td>
         </tr>
       }

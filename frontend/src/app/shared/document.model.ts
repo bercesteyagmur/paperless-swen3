@@ -1,7 +1,3 @@
-export interface DocumentRequest {
-  newFileName: string;
-}
-
 export interface TagResponse {
   id: number;
   name: string;

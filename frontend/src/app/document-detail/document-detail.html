@@ -1,24 +1,28 @@
-<div class="detail-box">
+<div class="box detail-box">
   <h2>File Details</h2>
 
   @if (errorMessage()) {
     <p class="error">{{ errorMessage() }}</p>
   }
 
-  @if (file()) {
-    <p><b>Name:</b> {{ file()?.originalFileName }}</p>
-    <p><b>Type:</b> {{ file()?.fileType }}</p>
-    <p><b>Uploaded at:</b> {{ file()?.uploadedAt }}</p>
+  @if (file(); as file) {
+    <p><b>Name:</b> {{ file.originalFileName }}</p>
+    <p><b>Type:</b> {{ file.fileType }}</p>
+    <p><b>Uploaded at:</b> {{ file.uploadedAt }}</p>
     <p>
       <b>Tags:</b>
-      @for (tag of file()?.tags; track tag.id) {
+      @for (tag of file.tags; track tag.id) {
         <span class="tag">{{ tag.name }}</span>
       }
     </p>
 
     <label for="new-name">New name</label>
-    <input id="new-name" type="text" [value]="newName()" (input)="onNewNameTyped($event)" />
+    <input id="new-name" type="text" [value]="newName()" (input)="onInputTyped($event, 'name')" />
     <button type="button" (click)="renameFile()">Rename</button>
+
+    <label for="tag-name">New tag</label>
+    <input id="tag-name" type="text" [value]="tagName()" (input)="onInputTyped($event, 'tag')" />
+    <button type="button" (click)="onAddTagButtonClicked()">Add tag</button>
   }
 
   <p><a routerLink="/files">Back to list</a></p>

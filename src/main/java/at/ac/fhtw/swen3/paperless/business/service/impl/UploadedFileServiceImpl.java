@@ -28,9 +28,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
     private UploadedFileModel findByIdOrThrow(Long id) {
         return uploadedFileRepository.findById(id)
                 .map(uploadedFileModelMapper::toModel)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "file with id " + id + " was not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "file not found"));
     }
 
     @Override

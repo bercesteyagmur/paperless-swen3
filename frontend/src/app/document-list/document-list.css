@@ -1,14 +1,5 @@
 .list-box {
   max-width: 700px;
-  margin: 50px auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-family: Helvetica, sans-serif;
-}
-
-h2 {
-  margin-top: 0;
 }
 
 table {
@@ -26,19 +17,6 @@ th {
   background-color: #f2f2f2;
 }
 
-.error {
-  color: red;
-}
-
-.tag {
-  display: inline-block;
-  margin-right: 4px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  background-color: #e0e0e0;
-  font-size: 12px;
-}
-
 .actions {
   white-space: nowrap;
 }
@@ -49,6 +27,7 @@ th {
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #fff;
+  color: black;
   cursor: pointer;
 }
 

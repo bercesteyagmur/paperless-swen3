@@ -1,4 +1,4 @@
-<div class="upload-box">
+<div class="box upload-box">
   <h2>Upload Document</h2>
 
   <!-- We learned how to use input type="file" from here: https://blog.angular-university.io/angular-file-upload/ -->
@@ -7,10 +7,6 @@
 
   @if (errorMessage()) {
     <p class="error">{{ errorMessage() }}</p>
-  }
-
-  @if (uploadError()) {
-    <p class="error">{{ uploadError() }}</p>
   }
 
   @if (uploadSuccess()) {
