@@ -47,4 +47,8 @@ export class DocumentService {
     return this.http.post<DocumentResponse>(`${this.apiUrl}/${id}/tags`, { name });
   }
 
+  removeTagFromDocument(fileId: number, tagId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${fileId}/tags/${tagId}`);
+  }
+
 }

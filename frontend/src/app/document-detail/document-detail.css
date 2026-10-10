@@ -12,3 +12,10 @@ input {
   margin-right: 4px;
   padding: 4px;
 }
+
+.remove-tag {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #333;
+}

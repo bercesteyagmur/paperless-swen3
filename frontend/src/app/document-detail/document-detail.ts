@@ -83,4 +83,24 @@ export class DocumentDetail {
       });
     }
   }
+
+  onRemoveTagButtonClicked(tagId: number): void {
+    const file = this.file();
+    if (file == null) {
+      return;
+    }
+
+    //maybe add confirmation before removing tag??
+    //window.confirm()
+
+    this.errorMessage.set('');
+    this.service.removeTagFromDocument(file.id, tagId).subscribe({
+      next: () => {
+        this.loadFile(file.id);
+      },
+      error: () => {
+        this.errorMessage.set('The tag could not be removed from the file.');
+      },
+    });
+  }
 }

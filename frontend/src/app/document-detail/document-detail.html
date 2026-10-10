@@ -9,10 +9,12 @@
     <p><b>Name:</b> {{ file.originalFileName }}</p>
     <p><b>Type:</b> {{ file.fileType }}</p>
     <p><b>Uploaded at:</b> {{ file.uploadedAt }}</p>
-    <p>
-      <b>Tags:</b>
+    <p><b>Tags:</b>
       @for (tag of file.tags; track tag.id) {
-        <span class="tag">{{ tag.name }}</span>
+        <span class="tag">
+          {{ tag.name }}
+          <button class="remove-tag" type="button"  (click)="onRemoveTagButtonClicked(tag.id)">×</button>
+        </span>
       }
     </p>
 
