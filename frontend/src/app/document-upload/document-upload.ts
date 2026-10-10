@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { DocumentService } from '../shared/document.service';
 
 @Component({
@@ -36,8 +37,12 @@ export class DocumentUpload {
         next: (documentFromBackend) => {
           this.uploadSuccess.set(documentFromBackend.originalFileName + ' is uploaded');
         },
-        error: () => {
-          this.errorMessage.set('Upload failed, please try again');
+        error: (error: HttpErrorResponse) => {
+          if (error.status === 409) {
+            this.errorMessage.set(file.name + ' already exists.');
+          } else {
+            this.errorMessage.set('Upload failed, please try again');
+          }
         },
       });
     }

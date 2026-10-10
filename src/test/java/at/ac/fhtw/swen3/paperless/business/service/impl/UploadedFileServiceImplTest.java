@@ -53,6 +53,20 @@ class UploadedFileServiceImplTest {
     }
 
     @Test
+    void uploadRejectsExistingFileName() {
+        UploadedFileModel input = uploadedFileModel(null, "report.pdf");
+        when(uploadedFileRepository.existsByOriginalFileNameIgnoreCase("report.pdf")).thenReturn(true);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.uploadFile(input)
+        );
+
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        verify(uploadedFileRepository, never()).save(any());
+    }
+
+    @Test
     void listMapsEveryStoredFile() {
         UploadedFile first = file(1L, "first.pdf");
         UploadedFile second = file(2L, "second.pdf");
