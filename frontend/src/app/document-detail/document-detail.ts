@@ -83,6 +83,8 @@ export class DocumentDetail {
     const tag = this.tagName().trim();
     if (tag == '') {
       this.errorMessage.set('The tag tag cannot be empty. Please write a tag.');
+    } else if (file.tags.some(fileTag => fileTag.name.toLowerCase() == tag.toLowerCase())) {
+      this.errorMessage.set('This tag is already assigned to the file.');
     } else {
       this.errorMessage.set('');
       this.service.addTagToDocument(file.id, tag).subscribe({
