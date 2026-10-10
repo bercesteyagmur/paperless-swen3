@@ -35,3 +35,24 @@ th {
   color: red;
   border-color: red;
 }
+
+.tag-filter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.filter-button {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+}
+
+.filter-button.active {
+  background-color: #1976d2;
+  color: white;
+}

@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DocumentResponse } from './document.model';
+import { DocumentResponse, TagResponse } from './document.model';
 
 @Injectable({
   providedIn: 'root'
@@ -49,6 +49,14 @@ export class DocumentService {
 
   removeTagFromDocument(fileId: number, tagId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${fileId}/tags/${tagId}`);
+  }
+
+  getTags(): Observable<TagResponse[]> {
+    return this.http.get<TagResponse[]>('/api/tags');
+  }
+
+  getDocumentsForTag(tagId: number): Observable<DocumentResponse[]> {
+    return this.http.get<DocumentResponse[]>(`/api/tags/${tagId}/files`);
   }
 
 }

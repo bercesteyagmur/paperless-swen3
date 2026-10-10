@@ -5,14 +5,32 @@
     <p class="error">{{ errorMessage() }}</p>
   }
 
-  @if (documents().length === 0 && !errorMessage()) {
+  @if (documents().length === 0 && !errorMessage() && selectedTag() == null) {
     <p>No files uploaded yet</p>
+  }
+
+  <div class="tag-filter">
+    <b>Filter:</b>
+    <button
+      class="filter-button" [class.active]="selectedTag() == null"
+      type="button" (click)="showAllDocuments()"
+    >All</button>
+    @for (tag of tags(); track tag.id) {
+      <button
+        class="filter-button" [class.active]="selectedTag()?.id == tag.id"
+        type="button" (click)="filterDocumentsByTag(tag)"
+      >{{ tag.name }}</button>
+    }
+  </div>
+
+  @if (selectedTag() && documents().length === 0) {
+    <p>No files with this tag</p>
   }
 
     <table>
       <tr>
         <th>Name</th>
-        <th>Tag</th>
+        <th>Tags</th>
         <th>Uploaded at</th>
         <th></th>
       </tr>

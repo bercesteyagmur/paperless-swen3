@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DocumentService } from '../shared/document.service';
-import { DocumentResponse } from '../shared/document.model';
+import { DocumentResponse, TagResponse } from '../shared/document.model';
 
 @Component({
   selector: 'app-document-list',
@@ -15,10 +15,14 @@ export class DocumentList {
 
   documents = signal<DocumentResponse[]>([]);
 
+  tags = signal<TagResponse[]>([]);
+  selectedTag = signal<TagResponse | null>(null);
+
   errorMessage = signal('');
 
   constructor() {
     this.loadDocuments();
+    this.loadTags();
   }
 
   loadDocuments(): void {
@@ -32,10 +36,21 @@ export class DocumentList {
     });
   }
 
+  loadTags(): void {
+    this.service.getTags().subscribe({
+      next: (tagsFromBackend) => {
+        this.tags.set(tagsFromBackend);
+      },
+      error: () => {
+        this.errorMessage.set('Tags could not be loaded.');
+      },
+    });
+  }
+
   onDeleteButtonClicked(document: DocumentResponse): void {
     this.service.deleteDocument(document.id).subscribe({
       next: () => {
-        this.loadDocuments();
+        this.showAllDocuments();
       },
       error: () => {
         this.errorMessage.set('The file ' + document.originalFileName + ' could not be deleted.');
@@ -46,5 +61,24 @@ export class DocumentList {
   onEditButtonClicked(id: number): void {
     this.service.setSelectedFileId(id);
     this.router.navigate(['/files/detail']);
+  }
+
+  filterDocumentsByTag(tag: TagResponse): void {
+    this.errorMessage.set('');
+    this.service.getDocumentsForTag(tag.id).subscribe({
+      next: (documentsFromBackend) => {
+        this.documents.set(documentsFromBackend);
+        this.selectedTag.set(tag);
+      },
+      error: () => {
+        this.errorMessage.set('Files for this tag could not be loaded.');
+      },
+    });
+  }
+
+  showAllDocuments(): void {
+    this.selectedTag.set(null);
+    this.errorMessage.set('');
+    this.loadDocuments();
   }
 }
