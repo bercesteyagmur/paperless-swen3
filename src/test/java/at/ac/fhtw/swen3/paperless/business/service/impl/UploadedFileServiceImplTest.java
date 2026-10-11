@@ -67,6 +67,34 @@ class UploadedFileServiceImplTest {
     }
 
     @Test
+    void uploadRejectsBlankFileName() {
+        UploadedFileModel input = uploadedFileModel(null, "   ");
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.uploadFile(input)
+        );
+
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        verify(uploadedFileRepository, never()).save(any());
+    }
+
+
+    @Test
+    void uploadRejectsNonPdfFile() {
+        UploadedFileModel input = uploadedFileModel(null, "report.txt");
+        input.setFileType("text/plain");
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.uploadFile(input)
+        );
+
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        verify(uploadedFileRepository, never()).save(any());
+    }
+
+    @Test
     void listMapsEveryStoredFile() {
         UploadedFile first = file(1L, "first.pdf");
         UploadedFile second = file(2L, "second.pdf");
@@ -137,7 +165,6 @@ class UploadedFileServiceImplTest {
         assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         verify(uploadedFileRepository, never()).save(any());
     }
-
     @Test
     void updateRejectsExistingFileName() {
         UploadedFile storedFile = file(3L, "old.pdf");

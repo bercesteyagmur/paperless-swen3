@@ -29,6 +29,10 @@ export class DocumentUpload {
     this.uploadSuccess.set('');
     if (file == null) {
       this.errorMessage.set('Please upload a file');
+    } else if (file.size === 0) {
+      this.errorMessage.set('The file cannot be empty');
+    } else if (file.name.trim().length > 100) {
+      this.errorMessage.set('The file name cannot be longer than 100 characters');
     } else if (!file.name.toLowerCase().endsWith('.pdf')) {
       this.errorMessage.set('Please upload a pdf');
     } else {

@@ -27,7 +27,7 @@
             {
               "key": "file",
               "type": "file",
-              "src": "api-tests/sample-document.txt"
+              "src": "api-tests/sample-document.pdf"
             }
           ]
         },
