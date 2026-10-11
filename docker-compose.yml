@@ -33,5 +33,16 @@ services:
     depends_on:
       - paperless-rest
 
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: paperless-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-paperless}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-paperless}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+
 volumes:
   paperless-db-data:
