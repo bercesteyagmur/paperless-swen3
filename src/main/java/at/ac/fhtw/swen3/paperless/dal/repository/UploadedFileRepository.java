@@ -8,4 +8,8 @@ import java.util.List;
 public interface UploadedFileRepository extends JpaRepository<UploadedFile, Long> {
 
     List<UploadedFile> findAllByTags_Id(Long tagId);
+
+    boolean existsByOriginalFileNameIgnoreCase(String originalFileName);
+
+    boolean existsByOriginalFileNameIgnoreCaseAndIdNot(String originalFileName, Long id);
 }

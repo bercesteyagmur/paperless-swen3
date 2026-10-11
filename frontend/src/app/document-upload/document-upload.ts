@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { DocumentService } from '../shared/document.service';
 
 @Component({
@@ -28,6 +29,10 @@ export class DocumentUpload {
     this.uploadSuccess.set('');
     if (file == null) {
       this.errorMessage.set('Please upload a file');
+    } else if (file.size === 0) {
+      this.errorMessage.set('The file cannot be empty');
+    } else if (file.name.trim().length > 100) {
+      this.errorMessage.set('The file name cannot be longer than 100 characters');
     } else if (!file.name.toLowerCase().endsWith('.pdf')) {
       this.errorMessage.set('Please upload a pdf');
     } else {
@@ -36,8 +41,12 @@ export class DocumentUpload {
         next: (documentFromBackend) => {
           this.uploadSuccess.set(documentFromBackend.originalFileName + ' is uploaded');
         },
-        error: () => {
-          this.errorMessage.set('Upload failed, please try again');
+        error: (error: HttpErrorResponse) => {
+          if (error.status === 409) {
+            this.errorMessage.set(file.name + ' already exists.');
+          } else {
+            this.errorMessage.set('Upload failed, please try again');
+          }
         },
       });
     }

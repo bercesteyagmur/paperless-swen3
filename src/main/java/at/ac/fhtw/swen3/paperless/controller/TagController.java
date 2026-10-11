@@ -7,6 +7,7 @@ import at.ac.fhtw.swen3.paperless.dto.TagResponse;
 import at.ac.fhtw.swen3.paperless.dto.UploadedFileResponse;
 import at.ac.fhtw.swen3.paperless.mapper.TagMapper;
 import at.ac.fhtw.swen3.paperless.mapper.UploadedFileMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class TagController {
     private final UploadedFileMapper uploadedFileMapper;
 
     @PostMapping
-    public ResponseEntity<TagResponse> createTag(@RequestBody TagRequest request) {
+    public ResponseEntity<TagResponse> createTag(@Valid @RequestBody TagRequest request) {
         TagModel tagModel = TagModel.builder()
                 .name(request.getName())
                 .build();
@@ -53,7 +54,7 @@ public class TagController {
     }
 
     @PatchMapping("/{id}")
-    public TagResponse updateTag(@PathVariable Long id, @RequestBody TagRequest request) {
+    public TagResponse updateTag(@PathVariable Long id, @Valid @RequestBody TagRequest request) {
         TagModel tagModel = TagModel.builder()
                 .name(request.getName())
                 .build();

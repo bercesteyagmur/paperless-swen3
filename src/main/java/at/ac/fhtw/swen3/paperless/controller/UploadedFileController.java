@@ -10,12 +10,14 @@ import at.ac.fhtw.swen3.paperless.dto.UploadedFileUpdateRequest;
 import at.ac.fhtw.swen3.paperless.mapper.TagMapper;
 import at.ac.fhtw.swen3.paperless.mapper.UploadedFileMapper;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -32,6 +34,10 @@ public class UploadedFileController {
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<UploadedFileResponse> uploadFile(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File must not be empty");
+        }
+
         UploadedFileModel uploadedFileModel = UploadedFileModel.builder()
                 .originalFileName(file.getOriginalFilename())
                 .fileType(file.getContentType())
@@ -55,7 +61,7 @@ public class UploadedFileController {
     }
 
     @PatchMapping("/{id}")
-    public UploadedFileResponse updateFile(@PathVariable Long id, @RequestBody UploadedFileUpdateRequest request) {
+    public UploadedFileResponse updateFile(@PathVariable Long id, @Valid @RequestBody UploadedFileUpdateRequest request) {
         UploadedFileModel updatedUploadedFileModel = uploadedFileService.updateFile(id, request.getNewFileName());
         return uploadedFileMapper.toResponseDto(updatedUploadedFileModel);
     }
@@ -67,7 +73,7 @@ public class UploadedFileController {
     }
 
     @PostMapping("/{fileId}/tags")
-    public UploadedFileResponse addTag(@PathVariable Long fileId, @RequestBody TagRequest request) {
+    public UploadedFileResponse addTag(@PathVariable Long fileId, @Valid @RequestBody TagRequest request) {
         UploadedFileModel updatedFile = tagService.addTag(fileId, request.getName());
         return uploadedFileMapper.toResponseDto(updatedFile);
     }
