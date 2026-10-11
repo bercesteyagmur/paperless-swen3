@@ -5,6 +5,7 @@ import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
 import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
 import at.ac.fhtw.swen3.paperless.dal.repository.UploadedFileRepository;
 import at.ac.fhtw.swen3.paperless.business.service.UploadedFileService;
+import at.ac.fhtw.swen3.paperless.messaging.OcrMessageProducer;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +25,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
 
     private final UploadedFileRepository uploadedFileRepository;
     private final UploadedFileModelMapper uploadedFileModelMapper;
+    private final OcrMessageProducer ocrMessageProducer;
 
     private UploadedFileModel findByIdOrThrow(Long id) {
         return uploadedFileRepository.findById(id)
@@ -58,6 +60,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
 
         UploadedFile entity = uploadedFileModelMapper.toEntity(uploadedFileModel);
         UploadedFile savedEntity = uploadedFileRepository.save(entity);
+        ocrMessageProducer.sendDocument(savedEntity.getId(), savedEntity.getOriginalFileName());
         return uploadedFileModelMapper.toModel(savedEntity);
     }
 
