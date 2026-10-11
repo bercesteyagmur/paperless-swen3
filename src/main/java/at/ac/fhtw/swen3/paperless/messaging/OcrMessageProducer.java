@@ -2,6 +2,8 @@ package at.ac.fhtw.swen3.paperless.messaging;
 
 import at.ac.fhtw.swen3.paperless.config.RabbitMqConfig;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
@@ -9,12 +11,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OcrMessageProducer {
 
+    private static final Logger logger = LoggerFactory.getLogger(OcrMessageProducer.class);
+
     private final RabbitTemplate rabbitTemplate;
 
-
     public void sendDocument(Long documentId, String fileName) {
-        String message = documentId + " : " + fileName;
+        String message = documentId + ":" + fileName;
 
         rabbitTemplate.convertAndSend(RabbitMqConfig.OCR_QUEUE, message);
+        logger.info("Sent document {} to OCR queue", documentId);
     }
 }

@@ -9,6 +9,8 @@ import at.ac.fhtw.swen3.paperless.messaging.OcrMessageProducer;
 
 import lombok.RequiredArgsConstructor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,8 @@ import java.util.List;
 @Transactional
 
 public class UploadedFileServiceImpl implements UploadedFileService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UploadedFileServiceImpl.class);
 
     private final UploadedFileRepository uploadedFileRepository;
     private final UploadedFileModelMapper uploadedFileModelMapper;
@@ -60,6 +64,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
 
         UploadedFile entity = uploadedFileModelMapper.toEntity(uploadedFileModel);
         UploadedFile savedEntity = uploadedFileRepository.save(entity);
+        logger.info("Stored uploaded file {} with id {}", savedEntity.getOriginalFileName(), savedEntity.getId());
         ocrMessageProducer.sendDocument(savedEntity.getId(), savedEntity.getOriginalFileName());
         return uploadedFileModelMapper.toModel(savedEntity);
     }
@@ -92,6 +97,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
 
         UploadedFile entity = uploadedFileModelMapper.toEntity(uploadedFileModel);
         UploadedFile savedEntity = uploadedFileRepository.save(entity);
+        logger.info("Renamed file {} to {}", id, savedEntity.getOriginalFileName());
         return uploadedFileModelMapper.toModel(savedEntity);
     }
 
@@ -99,6 +105,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
     public void deleteFile(Long id) {
         UploadedFileModel uploadedFileModel = findByIdOrThrow(id);
         uploadedFileRepository.delete(uploadedFileModelMapper.toEntity(uploadedFileModel));
+        logger.info("Deleted file with id {}", id);
     }
 
 }
