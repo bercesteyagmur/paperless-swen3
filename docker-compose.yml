@@ -22,8 +22,15 @@ services:
       DB_NAME: ${POSTGRES_DB:-paperless}
       DB_USER: ${POSTGRES_USER:-paperless}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-paperless}
+
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-paperless}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-paperless}
+
     depends_on:
       - db
+      - rabbitmq
 
   nginx:
     build: ./frontend
