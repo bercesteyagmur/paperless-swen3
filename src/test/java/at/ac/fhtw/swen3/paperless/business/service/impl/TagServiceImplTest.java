@@ -78,6 +78,19 @@ class TagServiceImplTest {
     }
 
     @Test
+    void createTagRejectsLongName() {
+        TagModel input = tagModel(null, "a".repeat(51));
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.createTag(input)
+        );
+
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        verify(tagRepository, never()).save(any());
+    }
+
+    @Test
     void createTagRejectsDuplicateName() {
         TagModel input = tagModel(null, "Important");
         when(tagRepository.existsByNameIgnoreCase("Important")).thenReturn(true);

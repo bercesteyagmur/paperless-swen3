@@ -4,14 +4,14 @@ set -euo pipefail
 
 PAPERLESS_BASE_URL="${PAPERLESS_BASE_URL:-http://localhost:8081}"
 PAPERLESS_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PAPERLESS_SAMPLE_FILE="$PAPERLESS_SCRIPT_DIR/sample-document.txt"
+PAPERLESS_SAMPLE_FILE="$PAPERLESS_SCRIPT_DIR/sample-document.pdf"
 
 echo "Running endpoint tests against $PAPERLESS_BASE_URL"
 echo
 
 PAPERLESS_UPLOAD_RESPONSE=$(curl -fsS \
   -X POST \
-  -F "file=@$PAPERLESS_SAMPLE_FILE;type=text/plain" \
+  -F "file=@$PAPERLESS_SAMPLE_FILE;type=application/pdf" \
   "$PAPERLESS_BASE_URL/api/files")
 
 PAPERLESS_FILE_ID=$(printf '%s' "$PAPERLESS_UPLOAD_RESPONSE" | python3 -c 'import json, sys; print(json.load(sys.stdin)["id"])')

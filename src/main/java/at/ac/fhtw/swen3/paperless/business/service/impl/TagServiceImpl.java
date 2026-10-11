@@ -126,7 +126,13 @@ public class TagServiceImpl implements TagService {
         if (name == null || name.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tag name must not be empty");
         }
-        return name.trim();
+
+        String trimmedName = name.trim();
+        if (trimmedName.length() > 50) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tag name must not be longer than 50 characters");
+        }
+
+        return trimmedName;
     }
 
     private Tag findTagByIdOrThrow(Long id) {
