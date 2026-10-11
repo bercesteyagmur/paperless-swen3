@@ -33,10 +33,27 @@ public class UploadedFileServiceImpl implements UploadedFileService {
 
     @Override
     public UploadedFileModel uploadFile(UploadedFileModel uploadedFileModel) {
-        if (uploadedFileRepository.existsByOriginalFileNameIgnoreCase(uploadedFileModel.getOriginalFileName())) {
+        String fileName = uploadedFileModel.getOriginalFileName();
+
+        if (fileName == null || fileName.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File name must not be empty");
+        }
+
+        fileName = fileName.trim();
+
+        if (fileName.length() > 100) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File name must not be longer than 100 characters");
+        }
+
+        if (!fileName.toLowerCase().endsWith(".pdf")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only PDF files are allowed");
+        }
+
+        if (uploadedFileRepository.existsByOriginalFileNameIgnoreCase(fileName)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A file with this name already exists");
         }
 
+        uploadedFileModel.setOriginalFileName(fileName);
         uploadedFileModel.setUploadedAt(LocalDateTime.now());
 
         UploadedFile entity = uploadedFileModelMapper.toEntity(uploadedFileModel);
@@ -80,4 +97,5 @@ public class UploadedFileServiceImpl implements UploadedFileService {
         UploadedFileModel uploadedFileModel = findByIdOrThrow(id);
         uploadedFileRepository.delete(uploadedFileModelMapper.toEntity(uploadedFileModel));
     }
+
 }

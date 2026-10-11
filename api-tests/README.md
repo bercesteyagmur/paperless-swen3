@@ -12,7 +12,7 @@ docker compose up --build
 
 1. Import `Paperless.postman_collection.json` into Postman
 2. Open the `Upload file` request and go to `Body` -> `form-data`
-3. In the `file` row, click `Select Files` and select `api-tests/sample-document.txt` from this project
+3. In the `file` row, click `Select Files` and select `api-tests/sample-document.pdf` from this project
 4. Run the collection from top to bottom. The upload request automatically saves the returned `fileId` for the following requests
 
 ## CURL
