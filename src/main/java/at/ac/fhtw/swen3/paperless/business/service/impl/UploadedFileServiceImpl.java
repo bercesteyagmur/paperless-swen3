@@ -1,5 +1,8 @@
 package at.ac.fhtw.swen3.paperless.business.service.impl;
 
+import at.ac.fhtw.swen3.paperless.business.exception.InvalidInputException;
+import at.ac.fhtw.swen3.paperless.business.exception.ResourceAlreadyExistsException;
+import at.ac.fhtw.swen3.paperless.business.exception.ResourceNotFoundException;
 import at.ac.fhtw.swen3.paperless.business.mapper.UploadedFileModelMapper;
 import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
 import at.ac.fhtw.swen3.paperless.business.validation.FileNameValidator;
@@ -12,10 +15,8 @@ import lombok.RequiredArgsConstructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,7 +36,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
     private UploadedFileModel findByIdOrThrow(Long id) {
         return uploadedFileRepository.findById(id)
                 .map(uploadedFileModelMapper::toModel)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "file not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("file not found"));
     }
 
     @Override
@@ -43,7 +44,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
         String fileName = FileNameValidator.getValidFileName(uploadedFileModel.getOriginalFileName());
 
         if (uploadedFileRepository.existsByOriginalFileNameIgnoreCase(fileName)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "A file with this name already exists");
+            throw new ResourceAlreadyExistsException("A file with this name already exists");
         }
 
         uploadedFileModel.setOriginalFileName(fileName);
@@ -70,11 +71,15 @@ public class UploadedFileServiceImpl implements UploadedFileService {
 
     @Override
     public UploadedFileModel updateFile(Long id, String newFileName) {
+        if (newFileName == null) {
+            throw new InvalidInputException("newFileName must not be null");
+        }
+
         String fileName = FileNameValidator.getValidFileName(newFileName);
         UploadedFileModel uploadedFileModel = findByIdOrThrow(id);
 
         if (uploadedFileRepository.existsByOriginalFileNameIgnoreCaseAndIdNot(fileName, id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "A file with this name already exists");
+            throw new ResourceAlreadyExistsException("A file with this name already exists");
         }
 
         uploadedFileModel.setOriginalFileName(fileName);

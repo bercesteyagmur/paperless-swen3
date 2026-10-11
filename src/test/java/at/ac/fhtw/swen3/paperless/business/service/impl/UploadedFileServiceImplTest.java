@@ -1,5 +1,8 @@
 package at.ac.fhtw.swen3.paperless.business.service.impl;
 
+import at.ac.fhtw.swen3.paperless.business.exception.InvalidInputException;
+import at.ac.fhtw.swen3.paperless.business.exception.ResourceAlreadyExistsException;
+import at.ac.fhtw.swen3.paperless.business.exception.ResourceNotFoundException;
 import at.ac.fhtw.swen3.paperless.business.mapper.UploadedFileModelMapper;
 import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
 import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
@@ -10,8 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,26 +63,28 @@ class UploadedFileServiceImplTest {
         UploadedFileModel input = uploadedFileModel(null, "report.pdf");
         when(uploadedFileRepository.existsByOriginalFileNameIgnoreCase("report.pdf")).thenReturn(true);
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        ResourceAlreadyExistsException exception = assertThrows(
+                ResourceAlreadyExistsException.class,
                 () -> service.uploadFile(input)
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(exception.getMessage()).isEqualTo("A file with this name already exists");
         verify(uploadedFileRepository, never()).save(any());
+        verify(ocrMessageProducer, never()).sendDocument(any(), any());
     }
 
     @Test
     void uploadRejectsBlankFileName() {
         UploadedFileModel input = uploadedFileModel(null, "   ");
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        InvalidInputException exception = assertThrows(
+                InvalidInputException.class,
                 () -> service.uploadFile(input)
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(exception.getMessage()).isEqualTo("File name must not be empty");
         verify(uploadedFileRepository, never()).save(any());
+        verify(ocrMessageProducer, never()).sendDocument(any(), any());
     }
 
 
@@ -90,13 +93,14 @@ class UploadedFileServiceImplTest {
         UploadedFileModel input = uploadedFileModel(null, "report.txt");
         input.setFileType("text/plain");
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        InvalidInputException exception = assertThrows(
+                InvalidInputException.class,
                 () -> service.uploadFile(input)
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(exception.getMessage()).isEqualTo("Only PDF files are allowed");
         verify(uploadedFileRepository, never()).save(any());
+        verify(ocrMessageProducer, never()).sendDocument(any(), any());
     }
 
     @Test
@@ -132,12 +136,12 @@ class UploadedFileServiceImplTest {
     void getByIdRejectsUnknownFile() {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
                 () -> service.getFileById(3L)
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(exception.getMessage()).isEqualTo("file not found");
     }
 
     @Test
@@ -162,12 +166,12 @@ class UploadedFileServiceImplTest {
 
     @Test
     void updateRejectsNullName() {
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        InvalidInputException exception = assertThrows(
+                InvalidInputException.class,
                 () -> service.updateFile(3L, null)
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(exception.getMessage()).isEqualTo("newFileName must not be null");
         verify(uploadedFileRepository, never()).save(any());
     }
     @Test
@@ -180,12 +184,12 @@ class UploadedFileServiceImplTest {
         when(uploadedFileRepository.existsByOriginalFileNameIgnoreCaseAndIdNot("report.pdf", 3L))
                 .thenReturn(true);
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        ResourceAlreadyExistsException exception = assertThrows(
+                ResourceAlreadyExistsException.class,
                 () -> service.updateFile(3L, "report.pdf")
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(exception.getMessage()).isEqualTo("A file with this name already exists");
         verify(uploadedFileRepository, never()).save(any());
     }
 
@@ -193,12 +197,12 @@ class UploadedFileServiceImplTest {
     void updateRejectsUnknownFile() {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
                 () -> service.updateFile(3L, "new.pdf")
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(exception.getMessage()).isEqualTo("file not found");
         verify(uploadedFileRepository, never()).save(any());
     }
 
@@ -221,12 +225,12 @@ class UploadedFileServiceImplTest {
     void deleteRejectsUnknownFile() {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
                 () -> service.deleteFile(3L)
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(exception.getMessage()).isEqualTo("file not found");
         verify(uploadedFileRepository, never()).delete(any(UploadedFile.class));
     }
 
