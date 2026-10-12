@@ -1,7 +1,7 @@
 package at.ac.fhtw.swen3.paperless.business.service.impl;
 
-import at.ac.fhtw.swen3.paperless.business.exception.ResourceAlreadyExistsException;
-import at.ac.fhtw.swen3.paperless.business.exception.ResourceNotFoundException;
+import at.ac.fhtw.swen3.paperless.exception.ResourceAlreadyExistsException;
+import at.ac.fhtw.swen3.paperless.exception.ResourceNotFoundException;
 import at.ac.fhtw.swen3.paperless.business.mapper.TagModelMapper;
 import at.ac.fhtw.swen3.paperless.business.mapper.UploadedFileModelMapper;
 import at.ac.fhtw.swen3.paperless.business.model.TagModel;

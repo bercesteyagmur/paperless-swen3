@@ -1,9 +1,4 @@
-package at.ac.fhtw.swen3.paperless.controller;
-
-import at.ac.fhtw.swen3.paperless.business.exception.InvalidInputException;
-import at.ac.fhtw.swen3.paperless.business.exception.ResourceAlreadyExistsException;
-import at.ac.fhtw.swen3.paperless.business.exception.ResourceNotFoundException;
-import at.ac.fhtw.swen3.paperless.messaging.exception.MessagePublishException;
+package at.ac.fhtw.swen3.paperless.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -1,4 +1,4 @@
-package at.ac.fhtw.swen3.paperless.messaging.exception;
+package at.ac.fhtw.swen3.paperless.exception;
 
 public class MessagePublishException extends RuntimeException {
 

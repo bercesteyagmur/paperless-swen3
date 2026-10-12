@@ -1,6 +1,6 @@
 package at.ac.fhtw.swen3.paperless.business.validation;
 
-import at.ac.fhtw.swen3.paperless.business.exception.InvalidInputException;
+import at.ac.fhtw.swen3.paperless.exception.InvalidInputException;
 
 public class FileNameValidator {
 

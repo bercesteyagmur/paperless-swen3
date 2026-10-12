@@ -1,7 +1,7 @@
 package at.ac.fhtw.swen3.paperless.messaging;
 
 import at.ac.fhtw.swen3.paperless.config.RabbitMqConfig;
-import at.ac.fhtw.swen3.paperless.messaging.exception.MessagePublishException;
+import at.ac.fhtw.swen3.paperless.exception.MessagePublishException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

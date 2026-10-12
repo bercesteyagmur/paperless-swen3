@@ -1,7 +1,7 @@
 package at.ac.fhtw.swen3.paperless.messaging;
 
 import at.ac.fhtw.swen3.paperless.config.RabbitMqConfig;
-import at.ac.fhtw.swen3.paperless.messaging.exception.MessagePublishException;
+import at.ac.fhtw.swen3.paperless.exception.MessagePublishException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

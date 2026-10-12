@@ -1,4 +1,4 @@
-package at.ac.fhtw.swen3.paperless.business.exception;
+package at.ac.fhtw.swen3.paperless.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
 
