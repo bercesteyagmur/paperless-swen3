@@ -29,7 +29,7 @@ export class DocumentUpload {
     this.uploadSuccess.set('');
     if (file == null) {
       this.errorMessage.set('Please upload a file');
-    } else if (file.size === 0) {
+    } else if (file.size == 0) {
       this.errorMessage.set('The file cannot be empty');
     } else if (file.name.trim().length > 100) {
       this.errorMessage.set('The file name cannot be longer than 100 characters');
@@ -42,7 +42,7 @@ export class DocumentUpload {
           this.uploadSuccess.set(documentFromBackend.originalFileName + ' is uploaded');
         },
         error: (error: HttpErrorResponse) => {
-          if (error.status === 409) {
+          if (error.status == 409) {
             this.errorMessage.set(file.name + ' already exists.');
           } else {
             this.errorMessage.set('Upload failed, please try again');
