@@ -5,6 +5,7 @@ import at.ac.fhtw.swen3.paperless.business.mapper.UploadedFileModelMapper;
 import at.ac.fhtw.swen3.paperless.business.model.TagModel;
 import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
 import at.ac.fhtw.swen3.paperless.business.service.TagService;
+import at.ac.fhtw.swen3.paperless.business.validation.TagNameValidator;
 import at.ac.fhtw.swen3.paperless.dal.entity.Tag;
 import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
 import at.ac.fhtw.swen3.paperless.dal.repository.TagRepository;
@@ -30,10 +31,8 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagModel createTag(TagModel tagModel) {
-        String name = getValidName(tagModel.getName());
-        if (tagRepository.existsByNameIgnoreCase(name)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "tag already exists");
-        }
+        String name = TagNameValidator.getValidTagName(tagModel.getName());
+        checkTagNameIsFree(name);
 
         tagModel.setName(name);
         Tag savedTag = tagRepository.save(tagModelMapper.toEntity(tagModel));
@@ -55,10 +54,10 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagModel updateTag(Long id, TagModel tagModel) {
         Tag tag = findTagByIdOrThrow(id);
-        String name = getValidName(tagModel.getName());
+        String name = TagNameValidator.getValidTagName(tagModel.getName());
 
-        if (!tag.getName().equalsIgnoreCase(name) && tagRepository.existsByNameIgnoreCase(name)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "tag already exists");
+        if (!tag.getName().equalsIgnoreCase(name)) {
+            checkTagNameIsFree(name);
         }
 
         tag.setName(name);
@@ -78,15 +77,9 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public UploadedFileModel addTag(Long fileId, String name) {
-        String tagName = getValidName(name);
+        String tagName = TagNameValidator.getValidTagName(name);
         UploadedFile file = findFileByIdOrThrow(fileId);
-        Tag tag = tagRepository.findByNameIgnoreCase(tagName).orElse(null);
-
-        if (tag == null) {
-            tag = new Tag();
-            tag.setName(tagName);
-            tag = tagRepository.save(tag);
-        }
+        Tag tag = findOrCreateTag(tagName);
 
         file.getTags().add(tag);
         UploadedFile savedFile = uploadedFileRepository.save(file);
@@ -122,22 +115,27 @@ public class TagServiceImpl implements TagService {
                 .toList();
     }
 
-    private String getValidName(String name) {
-        if (name == null || name.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tag name must not be empty");
-        }
-
-        String trimmedName = name.trim();
-        if (trimmedName.length() > 50) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tag name must not be longer than 50 characters");
-        }
-
-        return trimmedName;
-    }
-
     private Tag findTagByIdOrThrow(Long id) {
         return tagRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "tag not found"));
+    }
+
+    private void checkTagNameIsFree(String name) {
+        if (tagRepository.existsByNameIgnoreCase(name)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "tag already exists");
+        }
+    }
+
+    private Tag findOrCreateTag(String name) {
+        Tag tag = tagRepository.findByNameIgnoreCase(name).orElse(null);
+
+        if (tag == null) {
+            tag = new Tag();
+            tag.setName(name);
+            tag = tagRepository.save(tag);
+        }
+
+        return tag;
     }
 
     private UploadedFile findFileByIdOrThrow(Long id) {

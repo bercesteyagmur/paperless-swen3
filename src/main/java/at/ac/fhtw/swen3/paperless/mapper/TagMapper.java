@@ -1,6 +1,7 @@
 package at.ac.fhtw.swen3.paperless.mapper;
 
 import at.ac.fhtw.swen3.paperless.business.model.TagModel;
+import at.ac.fhtw.swen3.paperless.dto.TagRequest;
 import at.ac.fhtw.swen3.paperless.dto.TagResponse;
 import org.mapstruct.Mapper;
 
@@ -8,4 +9,6 @@ import org.mapstruct.Mapper;
 public interface TagMapper {
 
     TagResponse toResponseDto(TagModel tagModel);
+
+    TagModel toModel(TagRequest request);
 }
