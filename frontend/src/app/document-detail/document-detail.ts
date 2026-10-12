@@ -75,7 +75,7 @@ export class DocumentDetail {
           this.router.navigate(['/files']);
         },
         error: (error: HttpErrorResponse) => {
-          if (error.status === 409) {
+          if (error.status == 409) {
             this.errorMessage.set(name + ' already exists.');
           } else {
             this.errorMessage.set('The file could not be renamed.');
