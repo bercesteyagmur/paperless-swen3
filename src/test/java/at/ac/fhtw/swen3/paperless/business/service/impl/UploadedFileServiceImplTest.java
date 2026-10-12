@@ -4,6 +4,7 @@ import at.ac.fhtw.swen3.paperless.business.mapper.UploadedFileModelMapper;
 import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
 import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
 import at.ac.fhtw.swen3.paperless.dal.repository.UploadedFileRepository;
+import at.ac.fhtw.swen3.paperless.messaging.OcrMessageProducer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,6 +32,9 @@ class UploadedFileServiceImplTest {
     @Mock
     private UploadedFileModelMapper uploadedFileModelMapper;
 
+    @Mock
+    private OcrMessageProducer ocrMessageProducer;
+
     @InjectMocks
     private UploadedFileServiceImpl service;
 
@@ -50,6 +54,7 @@ class UploadedFileServiceImplTest {
         assertThat(result).isSameAs(savedUploadedFileModel);
         assertThat(input.getUploadedAt()).isNotNull();
         verify(uploadedFileRepository).save(entity);
+        verify(ocrMessageProducer).sendDocument(1L, "report.pdf");
     }
 
     @Test
