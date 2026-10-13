@@ -107,7 +107,6 @@ export class DocumentDetail {
     if (file == null) {
       return;
     }
-
     this.errorMessage.set('');
     this.service.removeTagFromDocument(file.id, tagId).subscribe({
       next: () => {
