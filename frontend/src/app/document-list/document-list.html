@@ -13,12 +13,12 @@
     <b>Filter:</b>
     <button
       class="filter-button" [class.active]="selectedTag() == null"
-      type="button" (click)="showAllDocuments()"
+      type="button" (click)="loadDocuments()"
     >All</button>
     @for (tag of tags(); track tag.id) {
       <button
         class="filter-button" [class.active]="selectedTag()?.id == tag.id"
-        type="button" (click)="filterDocumentsByTag(tag)"
+        type="button" (click)="onTagFilterClicked(tag)"
       >{{ tag.name }}</button>
     }
   </div>

@@ -2,6 +2,7 @@ package at.ac.fhtw.swen3.paperless.business.service.impl;
 
 import at.ac.fhtw.swen3.paperless.business.mapper.UploadedFileModelMapper;
 import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
+import at.ac.fhtw.swen3.paperless.business.validation.FileNameValidator;
 import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
 import at.ac.fhtw.swen3.paperless.dal.repository.UploadedFileRepository;
 import at.ac.fhtw.swen3.paperless.business.service.UploadedFileService;
@@ -39,21 +40,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
 
     @Override
     public UploadedFileModel uploadFile(UploadedFileModel uploadedFileModel) {
-        String fileName = uploadedFileModel.getOriginalFileName();
-
-        if (fileName == null || fileName.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File name must not be empty");
-        }
-
-        fileName = fileName.trim();
-
-        if (fileName.length() > 100) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File name must not be longer than 100 characters");
-        }
-
-        if (!fileName.toLowerCase().endsWith(".pdf")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only PDF files are allowed");
-        }
+        String fileName = FileNameValidator.getValidFileName(uploadedFileModel.getOriginalFileName());
 
         if (uploadedFileRepository.existsByOriginalFileNameIgnoreCase(fileName)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A file with this name already exists");
@@ -83,17 +70,14 @@ public class UploadedFileServiceImpl implements UploadedFileService {
 
     @Override
     public UploadedFileModel updateFile(Long id, String newFileName) {
-        if (newFileName == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "newFileName must not be null");
-        }
-
+        String fileName = FileNameValidator.getValidFileName(newFileName);
         UploadedFileModel uploadedFileModel = findByIdOrThrow(id);
 
-        if (uploadedFileRepository.existsByOriginalFileNameIgnoreCaseAndIdNot(newFileName, id)) {
+        if (uploadedFileRepository.existsByOriginalFileNameIgnoreCaseAndIdNot(fileName, id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A file with this name already exists");
         }
 
-        uploadedFileModel.setOriginalFileName(newFileName);
+        uploadedFileModel.setOriginalFileName(fileName);
 
         UploadedFile entity = uploadedFileModelMapper.toEntity(uploadedFileModel);
         UploadedFile savedEntity = uploadedFileRepository.save(entity);

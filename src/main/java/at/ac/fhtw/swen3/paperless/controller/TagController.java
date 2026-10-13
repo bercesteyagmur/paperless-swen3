@@ -26,11 +26,7 @@ public class TagController {
 
     @PostMapping
     public ResponseEntity<TagResponse> createTag(@Valid @RequestBody TagRequest request) {
-        TagModel tagModel = TagModel.builder()
-                .name(request.getName())
-                .build();
-
-        TagModel savedTag = tagService.createTag(tagModel);
+        TagModel savedTag = tagService.createTag(tagMapper.toModel(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(tagMapper.toResponseDto(savedTag));
     }
 
@@ -55,11 +51,7 @@ public class TagController {
 
     @PatchMapping("/{id}")
     public TagResponse updateTag(@PathVariable Long id, @Valid @RequestBody TagRequest request) {
-        TagModel tagModel = TagModel.builder()
-                .name(request.getName())
-                .build();
-
-        return tagMapper.toResponseDto(tagService.updateTag(id, tagModel));
+        return tagMapper.toResponseDto(tagService.updateTag(id, tagMapper.toModel(request)));
     }
 
     @DeleteMapping("/{id}")

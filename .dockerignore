@@ -3,3 +3,6 @@ target/
 .git/
 *.iml
 HELP.md
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/

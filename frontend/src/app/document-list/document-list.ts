@@ -26,6 +26,8 @@ export class DocumentList {
   }
 
   loadDocuments(): void {
+    this.selectedTag.set(null);
+    this.errorMessage.set('');
     this.service.getDocuments().subscribe({
       next: (documentsFromBackend) => {
         this.documents.set(documentsFromBackend);
@@ -50,7 +52,7 @@ export class DocumentList {
   onDeleteButtonClicked(document: DocumentResponse): void {
     this.service.deleteDocument(document.id).subscribe({
       next: () => {
-        this.showAllDocuments();
+        this.loadDocuments();
       },
       error: () => {
         this.errorMessage.set('The file ' + document.originalFileName + ' could not be deleted.');
@@ -63,7 +65,7 @@ export class DocumentList {
     this.router.navigate(['/files/detail']);
   }
 
-  filterDocumentsByTag(tag: TagResponse): void {
+  onTagFilterClicked(tag: TagResponse): void {
     this.errorMessage.set('');
     this.service.getDocumentsForTag(tag.id).subscribe({
       next: (documentsFromBackend) => {
@@ -74,11 +76,5 @@ export class DocumentList {
         this.errorMessage.set('Files for this tag could not be loaded.');
       },
     });
-  }
-
-  showAllDocuments(): void {
-    this.selectedTag.set(null);
-    this.errorMessage.set('');
-    this.loadDocuments();
   }
 }

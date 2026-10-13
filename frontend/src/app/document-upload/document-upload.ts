@@ -24,7 +24,7 @@ export class DocumentUpload {
     }
   }
 
-  uploadFile(): void {
+  onUploadButtonClicked(): void {
     const file = this.uploadedFile();
     this.uploadSuccess.set('');
     if (file == null) {
