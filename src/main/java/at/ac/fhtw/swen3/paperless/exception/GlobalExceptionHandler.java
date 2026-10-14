@@ -14,16 +14,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleNotFound(ResourceNotFoundException exception) {
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<String> handleConflict(ResourceAlreadyExistsException exception) {
+
         return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
 
     @ExceptionHandler(MessagePublishException.class)
     public ResponseEntity<String> handleMessagePublish(MessagePublishException exception) {
+
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(exception.getMessage());
     }
 }
