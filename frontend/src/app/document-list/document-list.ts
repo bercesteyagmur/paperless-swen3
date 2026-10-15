@@ -65,6 +65,10 @@ export class DocumentList {
     this.router.navigate(['/files/detail']);
   }
 
+  onUploadButtonClicked(): void {
+    this.router.navigate(['/upload']);
+  }
+
   onTagFilterClicked(tag: TagResponse): void {
     this.errorMessage.set('');
     this.service.getDocumentsForTag(tag.id).subscribe({
