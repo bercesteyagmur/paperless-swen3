@@ -1,5 +1,7 @@
 package at.ac.fhtw.swen3.paperless.business.service.impl;
 
+import at.ac.fhtw.swen3.paperless.exception.ResourceAlreadyExistsException;
+import at.ac.fhtw.swen3.paperless.exception.ResourceNotFoundException;
 import at.ac.fhtw.swen3.paperless.business.mapper.TagModelMapper;
 import at.ac.fhtw.swen3.paperless.business.mapper.UploadedFileModelMapper;
 import at.ac.fhtw.swen3.paperless.business.model.TagModel;
@@ -12,10 +14,8 @@ import at.ac.fhtw.swen3.paperless.dal.repository.TagRepository;
 import at.ac.fhtw.swen3.paperless.dal.repository.UploadedFileRepository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -94,7 +94,7 @@ public class TagServiceImpl implements TagService {
         boolean removed = file.getTags().removeIf(fileTag -> fileTag.getId().equals(tagId));
 
         if (!removed) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "tag is not assigned to file");
+            throw new ResourceNotFoundException("tag is not assigned to file");
         }
 
         uploadedFileRepository.save(file);
@@ -117,12 +117,12 @@ public class TagServiceImpl implements TagService {
 
     private Tag findTagByIdOrThrow(Long id) {
         return tagRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "tag not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("tag not found"));
     }
 
     private void checkTagNameIsFree(String name) {
         if (tagRepository.existsByNameIgnoreCase(name)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "tag already exists");
+            throw new ResourceAlreadyExistsException("tag already exists");
         }
     }
 
@@ -140,6 +140,6 @@ public class TagServiceImpl implements TagService {
 
     private UploadedFile findFileByIdOrThrow(Long id) {
         return uploadedFileRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "file not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("file not found"));
     }
 }

@@ -1,5 +1,7 @@
 package at.ac.fhtw.swen3.paperless.business.service.impl;
 
+import at.ac.fhtw.swen3.paperless.exception.InvalidInputException;
+import at.ac.fhtw.swen3.paperless.exception.ResourceAlreadyExistsException;
 import at.ac.fhtw.swen3.paperless.business.mapper.TagModelMapper;
 import at.ac.fhtw.swen3.paperless.business.mapper.UploadedFileModelMapper;
 import at.ac.fhtw.swen3.paperless.business.model.TagModel;
@@ -13,8 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,12 +68,12 @@ class TagServiceImplTest {
     void createTagRejectsBlankName() {
         TagModel input = tagModel(null, "   ");
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        InvalidInputException exception = assertThrows(
+                InvalidInputException.class,
                 () -> service.createTag(input)
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(exception.getMessage()).isEqualTo("tag name must not be empty");
         verify(tagRepository, never()).save(any());
     }
 
@@ -81,12 +81,12 @@ class TagServiceImplTest {
     void createTagRejectsLongName() {
         TagModel input = tagModel(null, "a".repeat(51));
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        InvalidInputException exception = assertThrows(
+                InvalidInputException.class,
                 () -> service.createTag(input)
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(exception.getMessage()).isEqualTo("tag name must not be longer than 50 characters");
         verify(tagRepository, never()).save(any());
     }
 
@@ -95,12 +95,12 @@ class TagServiceImplTest {
         TagModel input = tagModel(null, "Important");
         when(tagRepository.existsByNameIgnoreCase("Important")).thenReturn(true);
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        ResourceAlreadyExistsException exception = assertThrows(
+                ResourceAlreadyExistsException.class,
                 () -> service.createTag(input)
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(exception.getMessage()).isEqualTo("tag already exists");
         verify(tagRepository, never()).save(any());
     }
 
@@ -112,12 +112,12 @@ class TagServiceImplTest {
         when(tagRepository.findById(1L)).thenReturn(Optional.of(storedTag));
         when(tagRepository.existsByNameIgnoreCase("Important")).thenReturn(true);
 
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
+        ResourceAlreadyExistsException exception = assertThrows(
+                ResourceAlreadyExistsException.class,
                 () -> service.updateTag(1L, input)
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(exception.getMessage()).isEqualTo("tag already exists");
         assertThat(storedTag.getName()).isEqualTo("Invoice");
         verify(tagRepository, never()).save(any());
     }
