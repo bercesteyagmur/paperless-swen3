@@ -66,7 +66,7 @@ export class DocumentDetail {
     }
     this.service.renameDocument(file.id, name).subscribe({
       next: () => {
-        this.router.navigate(['/files']);
+        this.router.navigate(['/']);
       },
       error: (error: HttpErrorResponse) => {
         if (error.status == 409) {

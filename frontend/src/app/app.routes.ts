@@ -4,7 +4,7 @@ import { DocumentList } from './document-list/document-list';
 import { DocumentDetail } from './document-detail/document-detail';
 
 export const routes: Routes = [
-  { path: '', component: DocumentUpload },
-  { path: 'files', component: DocumentList },
+  { path: '', component: DocumentList },
+  { path: 'upload', component: DocumentUpload },
   { path: 'files/detail', component: DocumentDetail },
 ];
