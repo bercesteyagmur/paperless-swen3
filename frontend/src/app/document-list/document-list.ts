@@ -50,8 +50,7 @@ export class DocumentList {
   }
 
   onEditButtonClicked(id: number): void {
-    this.service.setSelectedFileId(id);
-    this.router.navigate(['/files/detail']);
+    this.router.navigate(['/files', id]);
   }
 
   onUploadButtonClicked(): void {

@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DocumentResponse, TagResponse } from './document.model';
@@ -11,13 +11,6 @@ export class DocumentService {
   private apiUrl = '/api/files';
 
   private http = inject(HttpClient);
-
-  private selectedId = signal<number | null>(null);
-  selectedFileId = this.selectedId.asReadonly();
-
-  setSelectedFileId(id: number): void {
-    this.selectedId.set(id);
-  }
 
   getDocuments(): Observable<DocumentResponse[]> {
     return this.http.get<DocumentResponse[]>(this.apiUrl);

@@ -6,5 +6,5 @@ import { DocumentDetail } from './document-detail/document-detail';
 export const routes: Routes = [
   { path: '', component: DocumentList },
   { path: 'upload', component: DocumentUpload },
-  { path: 'files/detail', component: DocumentDetail },
+  { path: 'files/:id', component: DocumentDetail },
 ];

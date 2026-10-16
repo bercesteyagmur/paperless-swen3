@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DocumentService } from '../shared/document.service';
 import { DocumentResponse, TagResponse } from '../shared/document.model';
 
@@ -14,6 +14,7 @@ import { DocumentResponse, TagResponse } from '../shared/document.model';
 export class DocumentDetail {
   private service = inject(DocumentService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   file = signal<DocumentResponse | null>(null);
   tags = signal<TagResponse[]>([]);
@@ -22,10 +23,8 @@ export class DocumentDetail {
   errorMessage = signal('');
 
   constructor() {
-    const id = this.service.selectedFileId();
-    if (id != null) {
-      this.loadFile(id);
-    }
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadFile(id);
     this.loadTags();
   }
 
