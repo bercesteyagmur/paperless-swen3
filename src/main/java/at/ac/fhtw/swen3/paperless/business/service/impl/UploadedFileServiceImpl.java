@@ -43,7 +43,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
     public UploadedFileModel uploadFile(UploadedFileModel uploadedFileModel) {
         String fileName = FileNameValidator.getValidFileName(uploadedFileModel.getOriginalFileName());
 
-        if (uploadedFileRepository.existsByOriginalFileNameIgnoreCase(fileName)) {
+        if (uploadedFileRepository.findByOriginalFileNameIgnoreCase(fileName) != null) {
             throw new ResourceAlreadyExistsException("A file with this name already exists");
         }
 
@@ -78,7 +78,8 @@ public class UploadedFileServiceImpl implements UploadedFileService {
         String fileName = FileNameValidator.getValidFileName(newFileName);
         UploadedFileModel uploadedFileModel = findByIdOrThrow(id);
 
-        if (uploadedFileRepository.existsByOriginalFileNameIgnoreCaseAndIdNot(fileName, id)) {
+        UploadedFile existingFile = uploadedFileRepository.findByOriginalFileNameIgnoreCase(fileName);
+        if (existingFile != null && !existingFile.getId().equals(id)) {
             throw new ResourceAlreadyExistsException("A file with this name already exists");
         }
 
