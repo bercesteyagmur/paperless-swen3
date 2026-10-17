@@ -32,7 +32,10 @@ export class DocumentDetail {
     this.service.getDocument(id).subscribe({
       next: (fileFromBackend) => {
         this.file.set(fileFromBackend);
-        this.newName.set(fileFromBackend.originalFileName);
+
+        const fileName = fileFromBackend.originalFileName;
+        const nameWithoutPdf = fileName.substring(0, fileName.length - 4);
+        this.newName.set(nameWithoutPdf);
       },
       error: () => {
         this.errorMessage.set('The file could not be loaded.');
@@ -63,13 +66,14 @@ export class DocumentDetail {
     if (this.errorMessage() != '') {
       return;
     }
-    this.service.renameDocument(file.id, name).subscribe({
+    const fileName = name + '.pdf';
+    this.service.renameDocument(file.id, fileName).subscribe({
       next: () => {
         this.router.navigate(['/']);
       },
       error: (error: HttpErrorResponse) => {
         if (error.status == 409) {
-          this.errorMessage.set(name + ' already exists.');
+          this.errorMessage.set(fileName + ' already exists.');
         } else {
           this.errorMessage.set('The file could not be renamed.');
         }
@@ -120,8 +124,8 @@ export class DocumentDetail {
   private checkFileName(name: string): void {
     if (name == '') {
       this.errorMessage.set('The file name cannot be empty. Please write a name.');
-    } else if (name.length > 100) {
-      this.errorMessage.set('The file name cannot be longer than 100 characters.');
+    } else if (name.length > 96) {
+      this.errorMessage.set('The file name cannot be longer than 96 characters.');
     } else {
       this.errorMessage.set('');
     }

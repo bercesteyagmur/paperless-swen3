@@ -174,6 +174,29 @@ class UploadedFileServiceImplTest {
         assertThat(exception.getMessage()).isEqualTo("newFileName must not be null");
         verify(uploadedFileRepository, never()).save(any());
     }
+
+    @Test
+    void updateRejectsNonPdfExtension() {
+        InvalidInputException exception = assertThrows(
+                InvalidInputException.class,
+                () -> service.updateFile(3L, "report.txt")
+        );
+
+        assertThat(exception.getMessage()).isEqualTo("Only PDF files are allowed");
+        verify(uploadedFileRepository, never()).save(any());
+    }
+
+    @Test
+    void updateRejectsEmptyNameWithPdfExtension() {
+        InvalidInputException exception = assertThrows(
+                InvalidInputException.class,
+                () -> service.updateFile(3L, ".pdf")
+        );
+
+        assertThat(exception.getMessage()).isEqualTo("File name must not be empty");
+        verify(uploadedFileRepository, never()).save(any());
+    }
+
     @Test
     void updateRejectsExistingFileName() {
         UploadedFile storedFile = file(3L, "old.pdf");

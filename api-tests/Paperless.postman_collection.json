@@ -121,7 +121,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"newFileName\": \"renamed-document.txt\"\n}"
+          "raw": "{\n  \"newFileName\": \"renamed-document.pdf\"\n}"
         },
         "url": "{{baseUrl}}/api/files/{{fileId}}"
       },
@@ -135,7 +135,7 @@
               "});",
               "",
               "pm.test(\"File was renamed\", function () {",
-              "    pm.expect(pm.response.json().originalFileName).to.eql(\"renamed-document.txt\");",
+              "    pm.expect(pm.response.json().originalFileName).to.eql(\"renamed-document.pdf\");",
               "});"
             ],
             "type": "text/javascript"
