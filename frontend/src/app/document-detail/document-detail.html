@@ -5,11 +5,11 @@
     <p class="error">{{ errorMessage() }}</p>
   }
 
-  @if (file(); as file) {
-    <p><b>Name:</b> {{ file.originalFileName }}</p>
-    <p><b>Uploaded at:</b> {{ file.uploadedAt }}</p>
+  @if (file()) {
+    <p><b>Name:</b> {{ file()?.originalFileName }}</p>
+    <p><b>Uploaded at:</b> {{ file()?.uploadedAt }}</p>
     <p><b>Tags:</b>
-      @for (tag of file.tags; track tag.id) {
+      @for (tag of file()?.tags; track tag.id) {
         <span class="tag">
           {{ tag.name }}
           <button class="remove-tag" type="button"  (click)="onRemoveTagButtonClicked(tag.id)">×</button>

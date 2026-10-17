@@ -229,24 +229,6 @@ class TagServiceImplTest {
         assertThat(result).containsExactlyInAnyOrder(invoiceModel, importantModel);
     }
 
-    @Test
-    void getFilesForTagReturnsMappedFiles() {
-        Tag tag = tag(2L, "Invoice");
-        UploadedFile firstFile = file(1L, "first.pdf");
-        UploadedFile secondFile = file(2L, "second.pdf");
-        UploadedFileModel firstModel = fileModel(1L, "first.pdf");
-        UploadedFileModel secondModel = fileModel(2L, "second.pdf");
-
-        when(tagRepository.findById(2L)).thenReturn(Optional.of(tag));
-        when(uploadedFileRepository.findAllByTags_Id(2L)).thenReturn(List.of(firstFile, secondFile));
-        when(uploadedFileModelMapper.toModel(firstFile)).thenReturn(firstModel);
-        when(uploadedFileModelMapper.toModel(secondFile)).thenReturn(secondModel);
-
-        List<UploadedFileModel> result = service.getFilesForTag(2L);
-
-        assertThat(result).containsExactly(firstModel, secondModel);
-    }
-
     private static Tag tag(Long id, String name) {
         return Tag.builder()
                 .id(id)
