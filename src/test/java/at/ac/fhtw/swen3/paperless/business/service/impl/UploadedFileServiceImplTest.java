@@ -62,7 +62,8 @@ class UploadedFileServiceImplTest {
     @Test
     void uploadRejectsExistingFileName() {
         UploadedFileModel input = uploadedFileModel(null, "report.pdf");
-        when(uploadedFileRepository.existsByOriginalFileNameIgnoreCase("report.pdf")).thenReturn(true);
+        when(uploadedFileRepository.findByOriginalFileNameIgnoreCase("report.pdf"))
+                .thenReturn(file(1L, "report.pdf"));
 
         assertThrows(
                 ResourceAlreadyExistsException.class,
@@ -198,8 +199,8 @@ class UploadedFileServiceImplTest {
 
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
         when(uploadedFileModelMapper.toModel(storedFile)).thenReturn(storedUploadedFileModel);
-        when(uploadedFileRepository.existsByOriginalFileNameIgnoreCaseAndIdNot("report.pdf", 3L))
-                .thenReturn(true);
+        when(uploadedFileRepository.findByOriginalFileNameIgnoreCase("report.pdf"))
+                .thenReturn(file(4L, "report.pdf"));
 
         assertThrows(
                 ResourceAlreadyExistsException.class,
@@ -207,6 +208,27 @@ class UploadedFileServiceImplTest {
         );
 
         verify(uploadedFileRepository, never()).save(any());
+    }
+
+    @Test
+    void updateAllowsSameFileWithDifferentCase() {
+        UploadedFile storedFile = file(3L, "report.pdf");
+        UploadedFileModel storedUploadedFileModel = uploadedFileModel(3L, "report.pdf");
+        UploadedFile renamedEntity = file(3L, "Report.pdf");
+        UploadedFileModel renamedUploadedFileModel = uploadedFileModel(3L, "Report.pdf");
+
+        when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
+        when(uploadedFileModelMapper.toModel(storedFile)).thenReturn(storedUploadedFileModel);
+        when(uploadedFileRepository.findByOriginalFileNameIgnoreCase("Report.pdf"))
+                .thenReturn(storedFile);
+        when(uploadedFileModelMapper.toEntity(storedUploadedFileModel)).thenReturn(renamedEntity);
+        when(uploadedFileRepository.save(renamedEntity)).thenReturn(renamedEntity);
+        when(uploadedFileModelMapper.toModel(renamedEntity)).thenReturn(renamedUploadedFileModel);
+
+        UploadedFileModel result = service.updateFile(3L, "Report.pdf");
+
+        assertThat(result.getOriginalFileName()).isEqualTo("Report.pdf");
+        verify(uploadedFileRepository).save(renamedEntity);
     }
 
     @Test
