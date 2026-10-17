@@ -8,7 +8,6 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,29 +21,23 @@ class UploadedFileRepositoryTest {
     private EntityManager entityManager;
 
     @Test
-    void saveGeneratesFileId() {
-        UploadedFile file = createFile("report.pdf");
+    void fileCanBeSavedRenamedAndDeleted() {
+        UploadedFile savedFile = uploadedFileRepository.saveAndFlush(createFile("old-name.pdf"));
+        Long fileId = savedFile.getId();
 
-        UploadedFile savedFile = uploadedFileRepository.save(file);
+        assertThat(fileId).isNotNull();
 
-        assertThat(savedFile.getId()).isNotNull();
-    }
+        savedFile.setOriginalFileName("new-name.pdf");
+        uploadedFileRepository.saveAndFlush(savedFile);
+        entityManager.clear();
 
-    @Test
-    void findByIdReturnsStoredFile() {
-        UploadedFile savedFile = uploadedFileRepository.save(createFile("report.pdf"));
+        UploadedFile renamedFile = uploadedFileRepository.findById(fileId).orElseThrow();
+        assertThat(renamedFile.getOriginalFileName()).isEqualTo("new-name.pdf");
 
-        Optional<UploadedFile> result = uploadedFileRepository.findById(savedFile.getId());
+        uploadedFileRepository.delete(renamedFile);
+        uploadedFileRepository.flush();
 
-        assertThat(result).isPresent();
-        assertThat(result.get().getOriginalFileName()).isEqualTo("report.pdf");
-    }
-
-    @Test
-    void findByIdReturnsEmptyForUnknownFile() {
-        Optional<UploadedFile> result = uploadedFileRepository.findById(999L);
-
-        assertThat(result).isEmpty();
+        assertThat(uploadedFileRepository.findById(fileId)).isEmpty();
     }
 
     @Test
@@ -54,32 +47,9 @@ class UploadedFileRepositoryTest {
 
         List<UploadedFile> result = uploadedFileRepository.findAll();
 
-        assertThat(result).hasSize(2);
         assertThat(result)
                 .extracting(UploadedFile::getOriginalFileName)
                 .containsExactlyInAnyOrder("first.pdf", "second.pdf");
-    }
-
-    @Test
-    void updateChangesStoredFileName() {
-        UploadedFile savedFile = uploadedFileRepository.saveAndFlush(createFile("old-name.pdf"));
-
-        savedFile.setOriginalFileName("new-name.pdf");
-        uploadedFileRepository.saveAndFlush(savedFile);
-
-        entityManager.clear();
-
-        UploadedFile updatedFile = uploadedFileRepository.findById(savedFile.getId()).orElseThrow();
-        assertThat(updatedFile.getOriginalFileName()).isEqualTo("new-name.pdf");
-    }
-
-    @Test
-    void deleteRemovesStoredFile() {
-        UploadedFile savedFile = uploadedFileRepository.saveAndFlush(createFile("report.pdf"));
-
-        uploadedFileRepository.deleteById(savedFile.getId());
-
-        assertThat(uploadedFileRepository.findById(savedFile.getId())).isEmpty();
     }
 
     private UploadedFile createFile(String fileName) {

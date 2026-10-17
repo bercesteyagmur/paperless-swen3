@@ -10,6 +10,10 @@ public class FileNameValidator {
         }
 
         String trimmedName = fileName.trim();
+        if (trimmedName.equalsIgnoreCase(".pdf")) {
+            throw new InvalidInputException("File name must not be empty");
+        }
+
         if (trimmedName.length() > 100) {
             throw new InvalidInputException("File name must not be longer than 100 characters");
         }

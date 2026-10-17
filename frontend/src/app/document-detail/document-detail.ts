@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DocumentService } from '../shared/document.service';
 import { DocumentResponse, TagResponse } from '../shared/document.model';
 
@@ -14,6 +14,7 @@ import { DocumentResponse, TagResponse } from '../shared/document.model';
 export class DocumentDetail {
   private service = inject(DocumentService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   file = signal<DocumentResponse | null>(null);
   tags = signal<TagResponse[]>([]);
@@ -22,10 +23,8 @@ export class DocumentDetail {
   errorMessage = signal('');
 
   constructor() {
-    const id = this.service.selectedFileId();
-    if (id != null) {
-      this.loadFile(id);
-    }
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadFile(id);
     this.loadTags();
   }
 
@@ -33,7 +32,10 @@ export class DocumentDetail {
     this.service.getDocument(id).subscribe({
       next: (fileFromBackend) => {
         this.file.set(fileFromBackend);
-        this.newName.set(fileFromBackend.originalFileName);
+
+        const fileName = fileFromBackend.originalFileName;
+        const nameWithoutPdf = fileName.substring(0, fileName.length - 4);
+        this.newName.set(nameWithoutPdf);
       },
       error: () => {
         this.errorMessage.set('The file could not be loaded.');
@@ -64,13 +66,14 @@ export class DocumentDetail {
     if (this.errorMessage() != '') {
       return;
     }
-    this.service.renameDocument(file.id, name).subscribe({
+    const fileName = name + '.pdf';
+    this.service.renameDocument(file.id, fileName).subscribe({
       next: () => {
         this.router.navigate(['/']);
       },
       error: (error: HttpErrorResponse) => {
         if (error.status == 409) {
-          this.errorMessage.set(name + ' already exists.');
+          this.errorMessage.set(fileName + ' already exists.');
         } else {
           this.errorMessage.set('The file could not be renamed.');
         }
@@ -121,8 +124,8 @@ export class DocumentDetail {
   private checkFileName(name: string): void {
     if (name == '') {
       this.errorMessage.set('The file name cannot be empty. Please write a name.');
-    } else if (name.length > 100) {
-      this.errorMessage.set('The file name cannot be longer than 100 characters.');
+    } else if (name.length > 96) {
+      this.errorMessage.set('The file name cannot be longer than 96 characters.');
     } else {
       this.errorMessage.set('');
     }
