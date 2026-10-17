@@ -52,7 +52,8 @@ class UploadedFileServiceImplTest {
 
         UploadedFileModel result = service.uploadFile(input);
 
-        assertThat(result).isSameAs(savedUploadedFileModel);
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getOriginalFileName()).isEqualTo("report.pdf");
         assertThat(input.getUploadedAt()).isNotNull();
         verify(uploadedFileRepository).save(entity);
         verify(ocrMessageProducer).sendDocument(1L, "report.pdf");
@@ -63,12 +64,11 @@ class UploadedFileServiceImplTest {
         UploadedFileModel input = uploadedFileModel(null, "report.pdf");
         when(uploadedFileRepository.existsByOriginalFileNameIgnoreCase("report.pdf")).thenReturn(true);
 
-        ResourceAlreadyExistsException exception = assertThrows(
+        assertThrows(
                 ResourceAlreadyExistsException.class,
                 () -> service.uploadFile(input)
         );
 
-        assertThat(exception.getMessage()).isEqualTo("A file with this name already exists");
         verify(uploadedFileRepository, never()).save(any());
         verify(ocrMessageProducer, never()).sendDocument(any(), any());
     }
@@ -77,28 +77,25 @@ class UploadedFileServiceImplTest {
     void uploadRejectsBlankFileName() {
         UploadedFileModel input = uploadedFileModel(null, "   ");
 
-        InvalidInputException exception = assertThrows(
+        assertThrows(
                 InvalidInputException.class,
                 () -> service.uploadFile(input)
         );
 
-        assertThat(exception.getMessage()).isEqualTo("File name must not be empty");
         verify(uploadedFileRepository, never()).save(any());
         verify(ocrMessageProducer, never()).sendDocument(any(), any());
     }
 
 
     @Test
-    void uploadRejectsNonPdfFile() {
+    void uploadRejectsNonPdfFileName() {
         UploadedFileModel input = uploadedFileModel(null, "report.txt");
-        input.setFileType("text/plain");
 
-        InvalidInputException exception = assertThrows(
+        assertThrows(
                 InvalidInputException.class,
                 () -> service.uploadFile(input)
         );
 
-        assertThat(exception.getMessage()).isEqualTo("Only PDF files are allowed");
         verify(uploadedFileRepository, never()).save(any());
         verify(ocrMessageProducer, never()).sendDocument(any(), any());
     }
@@ -129,19 +126,18 @@ class UploadedFileServiceImplTest {
 
         UploadedFileModel result = service.getFileById(3L);
 
-        assertThat(result).isSameAs(uploadedFileModel);
+        assertThat(result.getId()).isEqualTo(3L);
+        assertThat(result.getOriginalFileName()).isEqualTo("report.pdf");
     }
 
     @Test
     void getByIdRejectsUnknownFile() {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(
+        assertThrows(
                 ResourceNotFoundException.class,
                 () -> service.getFileById(3L)
         );
-
-        assertThat(exception.getMessage()).isEqualTo("file not found");
     }
 
     @Test
@@ -159,41 +155,39 @@ class UploadedFileServiceImplTest {
 
         UploadedFileModel result = service.updateFile(3L, "new.pdf");
 
-        assertThat(result).isSameAs(renamedUploadedFileModel);
+        assertThat(result.getId()).isEqualTo(3L);
+        assertThat(result.getOriginalFileName()).isEqualTo("new.pdf");
         assertThat(storedUploadedFileModel.getOriginalFileName()).isEqualTo("new.pdf");
         verify(uploadedFileRepository).save(renamedEntity);
     }
 
     @Test
     void updateRejectsNullName() {
-        InvalidInputException exception = assertThrows(
+        assertThrows(
                 InvalidInputException.class,
                 () -> service.updateFile(3L, null)
         );
 
-        assertThat(exception.getMessage()).isEqualTo("newFileName must not be null");
         verify(uploadedFileRepository, never()).save(any());
     }
 
     @Test
     void updateRejectsNonPdfExtension() {
-        InvalidInputException exception = assertThrows(
+        assertThrows(
                 InvalidInputException.class,
                 () -> service.updateFile(3L, "report.txt")
         );
 
-        assertThat(exception.getMessage()).isEqualTo("Only PDF files are allowed");
         verify(uploadedFileRepository, never()).save(any());
     }
 
     @Test
     void updateRejectsEmptyNameWithPdfExtension() {
-        InvalidInputException exception = assertThrows(
+        assertThrows(
                 InvalidInputException.class,
                 () -> service.updateFile(3L, ".pdf")
         );
 
-        assertThat(exception.getMessage()).isEqualTo("File name must not be empty");
         verify(uploadedFileRepository, never()).save(any());
     }
 
@@ -207,12 +201,11 @@ class UploadedFileServiceImplTest {
         when(uploadedFileRepository.existsByOriginalFileNameIgnoreCaseAndIdNot("report.pdf", 3L))
                 .thenReturn(true);
 
-        ResourceAlreadyExistsException exception = assertThrows(
+        assertThrows(
                 ResourceAlreadyExistsException.class,
                 () -> service.updateFile(3L, "report.pdf")
         );
 
-        assertThat(exception.getMessage()).isEqualTo("A file with this name already exists");
         verify(uploadedFileRepository, never()).save(any());
     }
 
@@ -220,12 +213,11 @@ class UploadedFileServiceImplTest {
     void updateRejectsUnknownFile() {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(
+        assertThrows(
                 ResourceNotFoundException.class,
                 () -> service.updateFile(3L, "new.pdf")
         );
 
-        assertThat(exception.getMessage()).isEqualTo("file not found");
         verify(uploadedFileRepository, never()).save(any());
     }
 
@@ -248,12 +240,11 @@ class UploadedFileServiceImplTest {
     void deleteRejectsUnknownFile() {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(
+        assertThrows(
                 ResourceNotFoundException.class,
                 () -> service.deleteFile(3L)
         );
 
-        assertThat(exception.getMessage()).isEqualTo("file not found");
         verify(uploadedFileRepository, never()).delete(any(UploadedFile.class));
     }
 

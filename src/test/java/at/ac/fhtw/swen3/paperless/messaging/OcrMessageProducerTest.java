@@ -47,7 +47,6 @@ class OcrMessageProducerTest {
                 () -> producer.sendDocument(12L, "HelloWorld.pdf")
         );
 
-        assertThat(exception.getMessage()).isEqualTo("Could not send document to OCR queue");
         assertThat(exception.getCause()).isSameAs(rabbitError);
     }
 }

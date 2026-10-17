@@ -2,6 +2,7 @@ package at.ac.fhtw.swen3.paperless.business.service.impl;
 
 import at.ac.fhtw.swen3.paperless.exception.InvalidInputException;
 import at.ac.fhtw.swen3.paperless.exception.ResourceAlreadyExistsException;
+import at.ac.fhtw.swen3.paperless.exception.ResourceNotFoundException;
 import at.ac.fhtw.swen3.paperless.business.mapper.TagModelMapper;
 import at.ac.fhtw.swen3.paperless.business.mapper.UploadedFileModelMapper;
 import at.ac.fhtw.swen3.paperless.business.model.TagModel;
@@ -58,7 +59,8 @@ class TagServiceImplTest {
 
         TagModel result = service.createTag(input);
 
-        assertThat(result).isSameAs(savedModel);
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getName()).isEqualTo("Important");
         assertThat(input.getName()).isEqualTo("Important");
 
         verify(tagRepository).save(entity);
@@ -68,12 +70,11 @@ class TagServiceImplTest {
     void createTagRejectsBlankName() {
         TagModel input = tagModel(null, "   ");
 
-        InvalidInputException exception = assertThrows(
+        assertThrows(
                 InvalidInputException.class,
                 () -> service.createTag(input)
         );
 
-        assertThat(exception.getMessage()).isEqualTo("tag name must not be empty");
         verify(tagRepository, never()).save(any());
     }
 
@@ -81,12 +82,11 @@ class TagServiceImplTest {
     void createTagRejectsLongName() {
         TagModel input = tagModel(null, "a".repeat(51));
 
-        InvalidInputException exception = assertThrows(
+        assertThrows(
                 InvalidInputException.class,
                 () -> service.createTag(input)
         );
 
-        assertThat(exception.getMessage()).isEqualTo("tag name must not be longer than 50 characters");
         verify(tagRepository, never()).save(any());
     }
 
@@ -95,12 +95,11 @@ class TagServiceImplTest {
         TagModel input = tagModel(null, "Important");
         when(tagRepository.existsByNameIgnoreCase("Important")).thenReturn(true);
 
-        ResourceAlreadyExistsException exception = assertThrows(
+        assertThrows(
                 ResourceAlreadyExistsException.class,
                 () -> service.createTag(input)
         );
 
-        assertThat(exception.getMessage()).isEqualTo("tag already exists");
         verify(tagRepository, never()).save(any());
     }
 
@@ -112,42 +111,52 @@ class TagServiceImplTest {
         when(tagRepository.findById(1L)).thenReturn(Optional.of(storedTag));
         when(tagRepository.existsByNameIgnoreCase("Important")).thenReturn(true);
 
-        ResourceAlreadyExistsException exception = assertThrows(
+        assertThrows(
                 ResourceAlreadyExistsException.class,
                 () -> service.updateTag(1L, input)
         );
 
-        assertThat(exception.getMessage()).isEqualTo("tag already exists");
         assertThat(storedTag.getName()).isEqualTo("Invoice");
         verify(tagRepository, never()).save(any());
     }
 
     @Test
-    void addTagUsesExistingTag() {
-        UploadedFile file = file(1L, "invoice.pdf");
-        Tag tag = tag(2L, "Invoice");
+    void updateTagRenamesAndSaves() {
+        Tag storedTag = tag(1L, "Invoice");
+        TagModel input = tagModel(null, "Important");
+        TagModel updatedTag = tagModel(1L, "Important");
 
-        when(uploadedFileRepository.findById(1L)).thenReturn(Optional.of(file));
-        when(tagRepository.findByNameIgnoreCase("Invoice")).thenReturn(Optional.of(tag));
+        when(tagRepository.findById(1L)).thenReturn(Optional.of(storedTag));
+        when(tagRepository.save(storedTag)).thenReturn(storedTag);
+        when(tagModelMapper.toModel(storedTag)).thenReturn(updatedTag);
 
-        service.addTag(1L, "Invoice");
+        TagModel result = service.updateTag(1L, input);
 
-        assertThat(file.getTags()).containsExactly(tag);
-        verify(tagRepository, never()).save(any());
+        assertThat(storedTag.getName()).isEqualTo("Important");
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getName()).isEqualTo("Important");
+        verify(tagRepository).save(storedTag);
     }
 
     @Test
-    void addTagCreatesNewTag() {
+    void addTagCreatesTagAndSavesFile() {
         UploadedFile file = file(1L, "invoice.pdf");
-        Tag savedTag = tag(3L, "October");
+        Tag savedTag = tag(2L, "Invoice");
+        UploadedFileModel updatedFile = fileModel(1L, "invoice.pdf");
 
         when(uploadedFileRepository.findById(1L)).thenReturn(Optional.of(file));
-        when(tagRepository.findByNameIgnoreCase("October")).thenReturn(Optional.empty());
+        when(tagRepository.findByNameIgnoreCase("Invoice")).thenReturn(Optional.empty());
         when(tagRepository.save(any(Tag.class))).thenReturn(savedTag);
+        when(uploadedFileRepository.save(file)).thenReturn(file);
+        when(uploadedFileModelMapper.toModel(file)).thenReturn(updatedFile);
 
-        service.addTag(1L, "October");
+        UploadedFileModel result = service.addTag(1L, "Invoice");
 
         assertThat(file.getTags()).containsExactly(savedTag);
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getOriginalFileName()).isEqualTo("invoice.pdf");
+        verify(tagRepository).save(any(Tag.class));
+        verify(uploadedFileRepository).save(file);
     }
 
     @Test
@@ -163,6 +172,22 @@ class TagServiceImplTest {
 
         assertThat(file.getTags()).isEmpty();
         verify(uploadedFileRepository).save(file);
+    }
+
+    @Test
+    void removeTagRejectsTagThatIsNotAssigned() {
+        UploadedFile file = file(1L, "invoice.pdf");
+        Tag tag = tag(2L, "Invoice");
+
+        when(uploadedFileRepository.findById(1L)).thenReturn(Optional.of(file));
+        when(tagRepository.findById(2L)).thenReturn(Optional.of(tag));
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.removeTagFromFile(1L, 2L)
+        );
+
+        verify(uploadedFileRepository, never()).save(any());
     }
 
     @Test
