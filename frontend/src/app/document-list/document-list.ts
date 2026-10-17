@@ -13,6 +13,7 @@ export class DocumentList {
   private service = inject(DocumentService);
   private router = inject(Router);
 
+  allDocuments: DocumentResponse[] = [];
   documents = signal<DocumentResponse[]>([]);
 
   tags = signal<TagResponse[]>([]);
@@ -22,7 +23,6 @@ export class DocumentList {
 
   constructor() {
     this.loadDocuments();
-    this.loadTags();
   }
 
   loadDocuments(): void {
@@ -30,21 +30,27 @@ export class DocumentList {
     this.errorMessage.set('');
     this.service.getDocuments().subscribe({
       next: (documentsFromBackend) => {
+        this.allDocuments = documentsFromBackend;
         this.documents.set(documentsFromBackend);
+
+        const tags: TagResponse[] = [];
+        for (const document of documentsFromBackend) {
+          for (const tag of document.tags) {
+            let alreadyAdded = false;
+            for (const addedTag of tags) {
+              if (addedTag.id == tag.id) {
+                alreadyAdded = true;
+              }
+            }
+            if (!alreadyAdded) {
+              tags.push(tag);
+            }
+          }
+        }
+        this.tags.set(tags);
       },
       error: () => {
         this.errorMessage.set('Files could not be loaded.');
-      },
-    });
-  }
-
-  loadTags(): void {
-    this.service.getTags().subscribe({
-      next: (tagsFromBackend) => {
-        this.tags.set(tagsFromBackend);
-      },
-      error: () => {
-        this.errorMessage.set('Tags could not be loaded.');
       },
     });
   }
@@ -64,20 +70,18 @@ export class DocumentList {
     this.router.navigate(['/files', id]);
   }
 
-  onUploadButtonClicked(): void {
-    this.router.navigate(['/upload']);
-  }
+  onTagFilterClicked(clickedTag: TagResponse): void {
+    const filtered: DocumentResponse[] = [];
 
-  onTagFilterClicked(tag: TagResponse): void {
-    this.errorMessage.set('');
-    this.service.getDocumentsForTag(tag.id).subscribe({
-      next: (documentsFromBackend) => {
-        this.documents.set(documentsFromBackend);
-        this.selectedTag.set(tag);
-      },
-      error: () => {
-        this.errorMessage.set('Files for this tag could not be loaded.');
-      },
-    });
+    for (const document of this.allDocuments) {
+      for (const documentTag of document.tags) {
+        if (documentTag.id == clickedTag.id) {
+          filtered.push(document);
+        }
+      }
+    }
+
+    this.documents.set(filtered);
+    this.selectedTag.set(clickedTag);
   }
 }

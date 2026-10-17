@@ -107,14 +107,6 @@ public class TagServiceImpl implements TagService {
                 .toList();
     }
 
-    @Override
-    public List<UploadedFileModel> getFilesForTag(Long tagId) {
-        findTagByIdOrThrow(tagId);
-        return uploadedFileRepository.findAllByTags_Id(tagId).stream()
-                .map(uploadedFileModelMapper::toModel)
-                .toList();
-    }
-
     private Tag findTagByIdOrThrow(Long id) {
         return tagRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("tag not found"));

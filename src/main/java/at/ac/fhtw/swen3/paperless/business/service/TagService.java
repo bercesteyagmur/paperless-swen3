@@ -22,6 +22,4 @@ public interface TagService {
     void removeTagFromFile(Long fileId, Long tagId);
 
     List<TagModel> getTagsForFile(Long fileId);
-
-    List<UploadedFileModel> getFilesForTag(Long tagId);
 }

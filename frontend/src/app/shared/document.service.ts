@@ -48,8 +48,4 @@ export class DocumentService {
     return this.http.get<TagResponse[]>('/api/tags');
   }
 
-  getDocumentsForTag(tagId: number): Observable<DocumentResponse[]> {
-    return this.http.get<DocumentResponse[]>(`/api/tags/${tagId}/files`);
-  }
-
 }

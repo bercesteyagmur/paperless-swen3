@@ -9,22 +9,6 @@
   margin: 0;
 }
 
-.upload-button {
-  display: block;
-  margin: 12px 0 0 auto;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 6px;
-  background-color: #1976d2;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.upload-button:hover {
-  background-color: #125ca1;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
