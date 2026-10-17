@@ -13,8 +13,7 @@
   <div class="tag-filter">
     <b>Filter:</b>
     <button
-      class="filter-button" [class.active]="selectedTag() == null"
-      type="button" (click)="loadDocuments()"
+      class="filter-button" [class.active]="selectedTag() == null"  type="button" (click)="loadDocuments()"
     >All</button>
     @for (tag of tags(); track tag.id) {
       <button

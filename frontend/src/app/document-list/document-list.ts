@@ -22,6 +22,7 @@ export class DocumentList {
 
   constructor() {
     this.loadDocuments();
+    this.loadTags();
   }
 
   loadDocuments(): void {
@@ -30,10 +31,20 @@ export class DocumentList {
     this.service.getDocuments().subscribe({
       next: (documentsFromBackend) => {
         this.documents.set(documentsFromBackend);
-        this.setTagsFromDocuments(documentsFromBackend);
       },
       error: () => {
         this.errorMessage.set('Files could not be loaded.');
+      },
+    });
+  }
+
+  loadTags(): void {
+    this.service.getTags().subscribe({
+      next: (tagsFromBackend) => {
+        this.tags.set(tagsFromBackend);
+      },
+      error: () => {
+        this.errorMessage.set('Tags could not be loaded.');
       },
     });
   }
@@ -68,21 +79,5 @@ export class DocumentList {
         this.errorMessage.set('Files for this tag could not be loaded.');
       },
     });
-  }
-
-  private setTagsFromDocuments(documents: DocumentResponse[]): void {
-    const usedTags: TagResponse[] = [];
-    const usedTagIds: number[] = [];
-
-    for (const document of documents) {
-      for (const tag of document.tags) {
-        if (!usedTagIds.includes(tag.id)) {
-          usedTags.push(tag);
-          usedTagIds.push(tag.id);
-        }
-      }
-    }
-
-    this.tags.set(usedTags);
   }
 }
