@@ -62,13 +62,9 @@ class UploadedFileServiceImplTest {
     @Test
     void uploadRejectsExistingFileName() {
         UploadedFileModel input = uploadedFileModel(null, "report.pdf");
-        when(uploadedFileRepository.findByOriginalFileNameIgnoreCase("report.pdf"))
-                .thenReturn(file(1L, "report.pdf"));
+        when(uploadedFileRepository.findByOriginalFileNameIgnoreCase("report.pdf")).thenReturn(file(1L, "report.pdf"));
 
-        assertThrows(
-                ResourceAlreadyExistsException.class,
-                () -> service.uploadFile(input)
-        );
+        assertThrows(ResourceAlreadyExistsException.class, () -> service.uploadFile(input));
 
         verify(uploadedFileRepository, never()).save(any());
         verify(ocrMessageProducer, never()).sendDocument(any(), any());
@@ -78,10 +74,7 @@ class UploadedFileServiceImplTest {
     void uploadRejectsBlankFileName() {
         UploadedFileModel input = uploadedFileModel(null, "   ");
 
-        assertThrows(
-                InvalidInputException.class,
-                () -> service.uploadFile(input)
-        );
+        assertThrows(InvalidInputException.class, () -> service.uploadFile(input));
 
         verify(uploadedFileRepository, never()).save(any());
         verify(ocrMessageProducer, never()).sendDocument(any(), any());
@@ -92,10 +85,7 @@ class UploadedFileServiceImplTest {
     void uploadRejectsNonPdfFileName() {
         UploadedFileModel input = uploadedFileModel(null, "report.txt");
 
-        assertThrows(
-                InvalidInputException.class,
-                () -> service.uploadFile(input)
-        );
+        assertThrows(InvalidInputException.class, () -> service.uploadFile(input));
 
         verify(uploadedFileRepository, never()).save(any());
         verify(ocrMessageProducer, never()).sendDocument(any(), any());
@@ -164,30 +154,21 @@ class UploadedFileServiceImplTest {
 
     @Test
     void updateRejectsNullName() {
-        assertThrows(
-                InvalidInputException.class,
-                () -> service.updateFile(3L, null)
-        );
+        assertThrows(InvalidInputException.class, () -> service.updateFile(3L, null));
 
         verify(uploadedFileRepository, never()).save(any());
     }
 
     @Test
     void updateRejectsNonPdfExtension() {
-        assertThrows(
-                InvalidInputException.class,
-                () -> service.updateFile(3L, "report.txt")
-        );
+        assertThrows(InvalidInputException.class, () -> service.updateFile(3L, "report.txt"));
 
         verify(uploadedFileRepository, never()).save(any());
     }
 
     @Test
     void updateRejectsEmptyNameWithPdfExtension() {
-        assertThrows(
-                InvalidInputException.class,
-                () -> service.updateFile(3L, ".pdf")
-        );
+        assertThrows(InvalidInputException.class, () -> service.updateFile(3L, ".pdf"));
 
         verify(uploadedFileRepository, never()).save(any());
     }
@@ -202,10 +183,7 @@ class UploadedFileServiceImplTest {
         when(uploadedFileRepository.findByOriginalFileNameIgnoreCase("report.pdf"))
                 .thenReturn(file(4L, "report.pdf"));
 
-        assertThrows(
-                ResourceAlreadyExistsException.class,
-                () -> service.updateFile(3L, "report.pdf")
-        );
+        assertThrows(ResourceAlreadyExistsException.class, () -> service.updateFile(3L, "report.pdf"));
 
         verify(uploadedFileRepository, never()).save(any());
     }
@@ -219,8 +197,7 @@ class UploadedFileServiceImplTest {
 
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
         when(uploadedFileModelMapper.toModel(storedFile)).thenReturn(storedUploadedFileModel);
-        when(uploadedFileRepository.findByOriginalFileNameIgnoreCase("Report.pdf"))
-                .thenReturn(storedFile);
+        when(uploadedFileRepository.findByOriginalFileNameIgnoreCase("Report.pdf")).thenReturn(storedFile);
         when(uploadedFileModelMapper.toEntity(storedUploadedFileModel)).thenReturn(renamedEntity);
         when(uploadedFileRepository.save(renamedEntity)).thenReturn(renamedEntity);
         when(uploadedFileModelMapper.toModel(renamedEntity)).thenReturn(renamedUploadedFileModel);
@@ -235,10 +212,7 @@ class UploadedFileServiceImplTest {
     void updateRejectsUnknownFile() {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
-        assertThrows(
-                ResourceNotFoundException.class,
-                () -> service.updateFile(3L, "new.pdf")
-        );
+        assertThrows(ResourceNotFoundException.class, () -> service.updateFile(3L, "new.pdf"));
 
         verify(uploadedFileRepository, never()).save(any());
     }
@@ -262,10 +236,7 @@ class UploadedFileServiceImplTest {
     void deleteRejectsUnknownFile() {
         when(uploadedFileRepository.findById(3L)).thenReturn(Optional.empty());
 
-        assertThrows(
-                ResourceNotFoundException.class,
-                () -> service.deleteFile(3L)
-        );
+        assertThrows(ResourceNotFoundException.class, () -> service.deleteFile(3L));
 
         verify(uploadedFileRepository, never()).delete(any(UploadedFile.class));
     }
