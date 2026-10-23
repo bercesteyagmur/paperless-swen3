@@ -39,6 +39,18 @@ services:
       - db
       - rabbitmq
 
+  ocr-worker:
+    build:
+      context: ./ocr-worker
+      dockerfile: Dockerfile
+    container_name: paperless-ocr-worker
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER:-paperless}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-paperless}
+    depends_on:
+      - rabbitmq
+
   nginx:
     build:
       dockerfile: frontend/Dockerfile

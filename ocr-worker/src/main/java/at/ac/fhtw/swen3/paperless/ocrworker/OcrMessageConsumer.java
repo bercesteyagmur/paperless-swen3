@@ -1,6 +1,5 @@
-package at.ac.fhtw.swen3.paperless.messaging;
+package at.ac.fhtw.swen3.paperless.ocrworker;
 
-import at.ac.fhtw.swen3.paperless.config.RabbitMqConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
