@@ -60,6 +60,36 @@ class UploadedFileServiceImplTest {
     }
 
     @Test
+    void uploadSendsSavedFileToOcrQueue() {
+        UploadedFileModel input = uploadedFileModel(null, "report.pdf");
+        UploadedFile entity = file(null, "report.pdf");
+        UploadedFile savedEntity = file(1L, "report.pdf");
+
+        when(uploadedFileModelMapper.toEntity(input)).thenReturn(entity);
+        when(uploadedFileRepository.save(entity)).thenReturn(savedEntity);
+
+        service.uploadFile(input);
+
+        verify(ocrMessageProducer).sendDocument(1L, "report.pdf");
+    }
+
+    @Test
+    void uploadReturnsGeneratedId() {
+        UploadedFileModel input = uploadedFileModel(null, "report.pdf");
+        UploadedFile entity = file(null, "report.pdf");
+        UploadedFile savedEntity = file(1L, "report.pdf");
+        UploadedFileModel savedModel = uploadedFileModel(1L, "report.pdf");
+
+        when(uploadedFileModelMapper.toEntity(input)).thenReturn(entity);
+        when(uploadedFileRepository.save(entity)).thenReturn(savedEntity);
+        when(uploadedFileModelMapper.toModel(savedEntity)).thenReturn(savedModel);
+
+        UploadedFileModel result = service.uploadFile(input);
+
+        assertThat(result.getId()).isEqualTo(1L);
+    }
+
+    @Test
     void uploadRejectsExistingFileName() {
         UploadedFileModel input = uploadedFileModel(null, "report.pdf");
         when(uploadedFileRepository.findByOriginalFileNameIgnoreCase("report.pdf")).thenReturn(file(1L, "report.pdf"));
@@ -92,6 +122,7 @@ class UploadedFileServiceImplTest {
     }
 
     @Test
+    //checks if all stored files are mapped + returend
     void listMapsEveryStoredFile() {
         UploadedFile first = file(1L, "first.pdf");
         UploadedFile second = file(2L, "second.pdf");
