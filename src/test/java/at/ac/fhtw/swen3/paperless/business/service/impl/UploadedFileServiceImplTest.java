@@ -10,6 +10,9 @@ import at.ac.fhtw.swen3.paperless.dal.repository.UploadedFileRepository;
 import at.ac.fhtw.swen3.paperless.messaging.OcrMessageProducer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -100,9 +103,11 @@ class UploadedFileServiceImplTest {
         verify(ocrMessageProducer, never()).sendDocument(any(), any());
     }
 
-    @Test
-    void uploadRejectsBlankFileName() {
-        UploadedFileModel input = uploadedFileModel(null, "   ");
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {" "})
+    void uploadRejectsBlankFileName(String fileName) {
+        UploadedFileModel input = uploadedFileModel(null, fileName);
 
         assertThrows(InvalidInputException.class, () -> service.uploadFile(input));
 
@@ -190,9 +195,10 @@ class UploadedFileServiceImplTest {
         verify(uploadedFileRepository, never()).save(any());
     }
 
-    @Test
-    void updateRejectsNonPdfExtension() {
-        assertThrows(InvalidInputException.class, () -> service.updateFile(3L, "report.txt"));
+    @ParameterizedTest
+    @ValueSource(strings = {"report.txt", "image.jpg", "document"})
+    void updateRejectsNonPdfExtension(String fileName) {
+        assertThrows(InvalidInputException.class, () -> service.updateFile(3L, fileName));
 
         verify(uploadedFileRepository, never()).save(any());
     }

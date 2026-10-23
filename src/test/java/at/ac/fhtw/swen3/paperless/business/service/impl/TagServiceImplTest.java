@@ -13,6 +13,9 @@ import at.ac.fhtw.swen3.paperless.dal.repository.TagRepository;
 import at.ac.fhtw.swen3.paperless.dal.repository.UploadedFileRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -66,9 +69,11 @@ class TagServiceImplTest {
         verify(tagRepository).save(entity);
     }
 
-    @Test
-    void createTagRejectsBlankName() {
-        TagModel input = tagModel(null, "   ");
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {" "})
+    void createTagRejectsBlankName(String tagName) {
+        TagModel input = tagModel(null, tagName);
 
         assertThrows(
                 InvalidInputException.class,
