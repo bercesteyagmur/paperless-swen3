@@ -7,7 +7,7 @@ Spring Boot REST API with PostgreSQL, Angular frontend and RabbitMQ
 - Backend: Spring Boot, Spring Data JPA, MapStruct, Lombok
 - Frontend: Angular
 - Database: PostgreSQL
-- Messaging: RabbitMQ
+- Messaging: RabbitMQ and OCR worker
 - Deployment: Docker Compose, nginx
 - CI: GitHub Actions
 
@@ -36,11 +36,18 @@ src/main/java/at/ac/fhtw/swen3/paperless
   mapper/       mappers between models and DTOs
   business/     services, models, validation and mappers between entities and models
   dal/          entities and repositories
-  messaging/    RabbitMQ producer and consumer
+  messaging/    RabbitMQ producer
   exception/    custom exceptions and global exception handler
   config/       RabbitMQ configuration
 frontend/       Angular frontend and nginx configuration
+ocr-worker/     RabbitMQ consumer for OCR jobs
 api-tests/      Postman collection and curl script
+```
+
+OCR worker logs:
+
+```bash
+docker compose logs -f ocr-worker
 ```
 
 ## Run tests
