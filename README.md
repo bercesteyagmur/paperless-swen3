@@ -44,12 +44,6 @@ ocr-worker/     RabbitMQ consumer for OCR jobs
 api-tests/      Postman collection and curl script
 ```
 
-OCR worker logs:
-
-```bash
-docker compose logs -f ocr-worker
-```
-
 ## Run tests
 
 ```bash
