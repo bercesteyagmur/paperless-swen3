@@ -28,24 +28,19 @@ class OcrMessageProducerTest {
     void sendsDocumentToOcrQueue() {
         producer.sendDocument(12L, "HelloWorld.pdf");
 
-        verify(rabbitTemplate).convertAndSend(
-                RabbitMqConfig.OCR_QUEUE,
-                "12:HelloWorld.pdf"
+        verify(rabbitTemplate).convertAndSend(RabbitMqConfig.OCR_QUEUE, "12:HelloWorld.pdf"
         );
     }
 
     @Test
     void reportsErrorWhenMessageCannotBeSent() {
         AmqpException rabbitError = new AmqpException("RabbitMQ unavailable");
+
         doThrow(rabbitError).when(rabbitTemplate).convertAndSend(
-                RabbitMqConfig.OCR_QUEUE,
-                "12:HelloWorld.pdf"
-        );
+                RabbitMqConfig.OCR_QUEUE, "12:HelloWorld.pdf");
 
         MessagePublishException exception = assertThrows(
-                MessagePublishException.class,
-                () -> producer.sendDocument(12L, "HelloWorld.pdf")
-        );
+                MessagePublishException.class, () -> producer.sendDocument(12L, "HelloWorld.pdf"));
 
         assertThat(exception.getCause()).isSameAs(rabbitError);
     }
