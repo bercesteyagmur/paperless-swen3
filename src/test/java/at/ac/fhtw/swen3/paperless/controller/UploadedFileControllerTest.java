@@ -52,7 +52,7 @@ class UploadedFileControllerTest {
         );
 
         assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        verify(uploadedFileService, never()).uploadFile(any());
+        verify(uploadedFileService, never()).uploadFile(any(), any());
     }
 
 }

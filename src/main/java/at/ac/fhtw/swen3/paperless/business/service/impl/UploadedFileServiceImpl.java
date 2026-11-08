@@ -10,6 +10,7 @@ import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
 import at.ac.fhtw.swen3.paperless.dal.repository.UploadedFileRepository;
 import at.ac.fhtw.swen3.paperless.business.service.UploadedFileService;
 import at.ac.fhtw.swen3.paperless.messaging.OcrMessageProducer;
+import at.ac.fhtw.swen3.paperless.storage.MinioService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,6 +34,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
     private final UploadedFileRepository uploadedFileRepository;
     private final UploadedFileModelMapper uploadedFileModelMapper;
     private final OcrMessageProducer ocrMessageProducer;
+    private final MinioService minioService;
 
     private UploadedFileModel findByIdOrThrow(Long id) {
         return uploadedFileRepository.findById(id)
@@ -40,7 +43,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
     }
 
     @Override
-    public UploadedFileModel uploadFile(UploadedFileModel uploadedFileModel) {
+    public UploadedFileModel uploadFile(UploadedFileModel uploadedFileModel, MultipartFile file) {
         String fileName = FileNameValidator.getValidFileName(uploadedFileModel.getOriginalFileName());
 
         if (uploadedFileRepository.findByOriginalFileNameIgnoreCase(fileName) != null) {
@@ -53,6 +56,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
         UploadedFile entity = uploadedFileModelMapper.toEntity(uploadedFileModel);
         UploadedFile savedEntity = uploadedFileRepository.save(entity);
         logger.info("Stored uploaded file {} with id {}", savedEntity.getOriginalFileName(), savedEntity.getId());
+        minioService.uploadFile(savedEntity.getId().toString(), file);
         ocrMessageProducer.sendDocument(savedEntity.getId(), savedEntity.getOriginalFileName());
         return uploadedFileModelMapper.toModel(savedEntity);
     }
