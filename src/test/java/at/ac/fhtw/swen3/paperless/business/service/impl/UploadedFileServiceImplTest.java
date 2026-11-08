@@ -8,7 +8,9 @@ import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
 import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
 import at.ac.fhtw.swen3.paperless.dal.repository.UploadedFileRepository;
 import at.ac.fhtw.swen3.paperless.messaging.OcrMessageProducer;
+import at.ac.fhtw.swen3.paperless.storage.MinioService;
 import org.junit.jupiter.api.Test;
+import org.springframework.web.multipart.MultipartFile;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -39,6 +41,12 @@ class UploadedFileServiceImplTest {
     @Mock
     private OcrMessageProducer ocrMessageProducer;
 
+    @Mock
+    private MinioService minioService;
+
+    @Mock
+    private MultipartFile multipartFile;
+
     @InjectMocks
     private UploadedFileServiceImpl service;
 
@@ -53,7 +61,7 @@ class UploadedFileServiceImplTest {
         when(uploadedFileRepository.save(entity)).thenReturn(savedEntity);
         when(uploadedFileModelMapper.toModel(savedEntity)).thenReturn(savedUploadedFileModel);
 
-        UploadedFileModel result = service.uploadFile(input);
+        UploadedFileModel result = service.uploadFile(input, multipartFile);
 
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getOriginalFileName()).isEqualTo("report.pdf");
@@ -71,7 +79,7 @@ class UploadedFileServiceImplTest {
         when(uploadedFileModelMapper.toEntity(input)).thenReturn(entity);
         when(uploadedFileRepository.save(entity)).thenReturn(savedEntity);
 
-        service.uploadFile(input);
+        service.uploadFile(input, multipartFile);
 
         verify(ocrMessageProducer).sendDocument(1L, "report.pdf");
     }
@@ -87,7 +95,7 @@ class UploadedFileServiceImplTest {
         when(uploadedFileRepository.save(entity)).thenReturn(savedEntity);
         when(uploadedFileModelMapper.toModel(savedEntity)).thenReturn(savedModel);
 
-        UploadedFileModel result = service.uploadFile(input);
+        UploadedFileModel result = service.uploadFile(input, multipartFile);
 
         assertThat(result.getId()).isEqualTo(1L);
     }
@@ -97,7 +105,7 @@ class UploadedFileServiceImplTest {
         UploadedFileModel input = uploadedFileModel(null, "report.pdf");
         when(uploadedFileRepository.findByOriginalFileNameIgnoreCase("report.pdf")).thenReturn(file(1L, "report.pdf"));
 
-        assertThrows(ResourceAlreadyExistsException.class, () -> service.uploadFile(input));
+        assertThrows(ResourceAlreadyExistsException.class, () -> service.uploadFile(input, multipartFile));
 
         verify(uploadedFileRepository, never()).save(any());
         verify(ocrMessageProducer, never()).sendDocument(any(), any());
@@ -109,7 +117,7 @@ class UploadedFileServiceImplTest {
     void uploadRejectsBlankFileName(String fileName) {
         UploadedFileModel input = uploadedFileModel(null, fileName);
 
-        assertThrows(InvalidInputException.class, () -> service.uploadFile(input));
+        assertThrows(InvalidInputException.class, () -> service.uploadFile(input, multipartFile));
 
         verify(uploadedFileRepository, never()).save(any());
         verify(ocrMessageProducer, never()).sendDocument(any(), any());
@@ -120,7 +128,7 @@ class UploadedFileServiceImplTest {
     void uploadRejectsNonPdfFileName() {
         UploadedFileModel input = uploadedFileModel(null, "report.txt");
 
-        assertThrows(InvalidInputException.class, () -> service.uploadFile(input));
+        assertThrows(InvalidInputException.class, () -> service.uploadFile(input, multipartFile));
 
         verify(uploadedFileRepository, never()).save(any());
         verify(ocrMessageProducer, never()).sendDocument(any(), any());

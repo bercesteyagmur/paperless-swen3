@@ -43,7 +43,7 @@ public class UploadedFileController {
                 .fileType(file.getContentType())
                 .build();
 
-        UploadedFileModel savedUploadedFileModel = uploadedFileService.uploadFile(uploadedFileModel);
+        UploadedFileModel savedUploadedFileModel = uploadedFileService.uploadFile(uploadedFileModel, file);
         UploadedFileResponse response = uploadedFileMapper.toResponseDto(savedUploadedFileModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
