@@ -1,4 +1,4 @@
-package at.ac.fhtw.swen3.paperless.ocrworker;
+package at.ac.fhtw.swen3.paperless.ocrworker.service;
 
 import net.sourceforge.tess4j.Tesseract;
 import org.springframework.stereotype.Service;

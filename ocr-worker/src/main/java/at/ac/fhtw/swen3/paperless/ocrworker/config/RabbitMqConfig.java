@@ -1,4 +1,4 @@
-package at.ac.fhtw.swen3.paperless.ocrworker;
+package at.ac.fhtw.swen3.paperless.ocrworker.config;
 
 import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Bean;

@@ -1,5 +1,7 @@
-package at.ac.fhtw.swen3.paperless.ocrworker;
+package at.ac.fhtw.swen3.paperless.ocrworker.messaging;
 
+import at.ac.fhtw.swen3.paperless.ocrworker.config.RabbitMqConfig;
+import at.ac.fhtw.swen3.paperless.ocrworker.service.OcrService;
 import io.minio.DownloadObjectArgs;
 import io.minio.MinioClient;
 import lombok.RequiredArgsConstructor;
