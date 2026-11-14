@@ -33,6 +33,7 @@ public class MinioService {
                             .bucket(BUCKET)
                             .object(objectName)
                             .filename(pdf.getAbsolutePath())
+                            .contentType(file.getContentType())
                             .build()
             );
             pdf.delete();
