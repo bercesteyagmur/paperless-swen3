@@ -93,6 +93,21 @@ services:
       MINIO_PASSWORD: ${MINIO_PASSWORD:-minioadmin}
     depends_on:
       - rabbitmq
+      - minio
+
+  indexing-worker:
+    build:
+      context: ./indexing-worker
+      dockerfile: Dockerfile
+    container_name: paperless-indexing-worker
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER:-paperless}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-paperless}
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    depends_on:
+      - rabbitmq
+      - elasticsearch
 
   nginx:
     build:
