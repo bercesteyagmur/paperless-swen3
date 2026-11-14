@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class OcrMessageProducer {
+public class OcrDocumentProducer {
 
-    private static final Logger logger = LoggerFactory.getLogger(OcrMessageProducer.class);
+    private static final Logger logger = LoggerFactory.getLogger(OcrDocumentProducer.class);
 
     private final RabbitTemplate rabbitTemplate;
 

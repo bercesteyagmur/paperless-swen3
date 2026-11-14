@@ -16,13 +16,13 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class OcrMessageProducerTest {
+class OcrDocumentProducerTest {
 
     @Mock
     private RabbitTemplate rabbitTemplate;
 
     @InjectMocks
-    private OcrMessageProducer producer;
+    private OcrDocumentProducer producer;
 
     @Test
     void sendsDocumentToOcrQueue() {

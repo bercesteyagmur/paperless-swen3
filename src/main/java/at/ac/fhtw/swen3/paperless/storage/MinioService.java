@@ -28,6 +28,7 @@ public class MinioService {
             }
 
             pdf = File.createTempFile("upload", ".pdf");
+
             file.transferTo(pdf);
 
             minioClient.uploadObject(

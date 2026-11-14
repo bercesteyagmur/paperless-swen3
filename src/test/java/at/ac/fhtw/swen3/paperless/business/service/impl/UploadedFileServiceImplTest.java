@@ -7,7 +7,7 @@ import at.ac.fhtw.swen3.paperless.business.mapper.UploadedFileModelMapper;
 import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
 import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
 import at.ac.fhtw.swen3.paperless.dal.repository.UploadedFileRepository;
-import at.ac.fhtw.swen3.paperless.messaging.OcrMessageProducer;
+import at.ac.fhtw.swen3.paperless.messaging.OcrDocumentProducer;
 import at.ac.fhtw.swen3.paperless.storage.MinioService;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,7 +39,7 @@ class UploadedFileServiceImplTest {
     private UploadedFileModelMapper uploadedFileModelMapper;
 
     @Mock
-    private OcrMessageProducer ocrMessageProducer;
+    private OcrDocumentProducer ocrDocumentProducer;
 
     @Mock
     private MinioService minioService;
@@ -67,7 +67,7 @@ class UploadedFileServiceImplTest {
         assertThat(result.getOriginalFileName()).isEqualTo("report.pdf");
         assertThat(input.getUploadedAt()).isNotNull();
         verify(uploadedFileRepository).save(entity);
-        verify(ocrMessageProducer).sendDocument(1L, "report.pdf");
+        verify(ocrDocumentProducer).sendDocument(1L, "report.pdf");
     }
 
     @Test
@@ -81,7 +81,7 @@ class UploadedFileServiceImplTest {
 
         service.uploadFile(input, multipartFile);
 
-        verify(ocrMessageProducer).sendDocument(1L, "report.pdf");
+        verify(ocrDocumentProducer).sendDocument(1L, "report.pdf");
     }
 
     @Test
@@ -108,7 +108,7 @@ class UploadedFileServiceImplTest {
         assertThrows(ResourceAlreadyExistsException.class, () -> service.uploadFile(input, multipartFile));
 
         verify(uploadedFileRepository, never()).save(any());
-        verify(ocrMessageProducer, never()).sendDocument(any(), any());
+        verify(ocrDocumentProducer, never()).sendDocument(any(), any());
     }
 
     @ParameterizedTest
@@ -120,7 +120,7 @@ class UploadedFileServiceImplTest {
         assertThrows(InvalidInputException.class, () -> service.uploadFile(input, multipartFile));
 
         verify(uploadedFileRepository, never()).save(any());
-        verify(ocrMessageProducer, never()).sendDocument(any(), any());
+        verify(ocrDocumentProducer, never()).sendDocument(any(), any());
     }
 
 
@@ -131,7 +131,7 @@ class UploadedFileServiceImplTest {
         assertThrows(InvalidInputException.class, () -> service.uploadFile(input, multipartFile));
 
         verify(uploadedFileRepository, never()).save(any());
-        verify(ocrMessageProducer, never()).sendDocument(any(), any());
+        verify(ocrDocumentProducer, never()).sendDocument(any(), any());
     }
 
     @Test

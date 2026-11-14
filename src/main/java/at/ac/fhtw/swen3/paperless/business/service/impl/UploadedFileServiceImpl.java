@@ -9,7 +9,7 @@ import at.ac.fhtw.swen3.paperless.business.validation.FileNameValidator;
 import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
 import at.ac.fhtw.swen3.paperless.dal.repository.UploadedFileRepository;
 import at.ac.fhtw.swen3.paperless.business.service.UploadedFileService;
-import at.ac.fhtw.swen3.paperless.messaging.OcrMessageProducer;
+import at.ac.fhtw.swen3.paperless.messaging.OcrDocumentProducer;
 import at.ac.fhtw.swen3.paperless.storage.MinioService;
 
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
 
     private final UploadedFileRepository uploadedFileRepository;
     private final UploadedFileModelMapper uploadedFileModelMapper;
-    private final OcrMessageProducer ocrMessageProducer;
+    private final OcrDocumentProducer ocrDocumentProducer;
     private final MinioService minioService;
 
     private UploadedFileModel findByIdOrThrow(Long id) {
@@ -57,7 +57,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
         UploadedFile savedEntity = uploadedFileRepository.save(entity);
         logger.info("Stored uploaded file {} with id {}", savedEntity.getOriginalFileName(), savedEntity.getId());
         minioService.uploadFile(savedEntity.getId().toString(), file);
-        ocrMessageProducer.sendDocument(savedEntity.getId(), savedEntity.getOriginalFileName());
+        ocrDocumentProducer.sendDocument(savedEntity.getId(), savedEntity.getOriginalFileName());
         return uploadedFileModelMapper.toModel(savedEntity);
     }
 
