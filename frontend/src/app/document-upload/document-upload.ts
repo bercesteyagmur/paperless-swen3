@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { DocumentService } from '../shared/document.service';
 
 @Component({
@@ -10,6 +11,7 @@ import { DocumentService } from '../shared/document.service';
 
 export class DocumentUpload {
   private service = inject(DocumentService);
+  private router = inject(Router);
 
   uploadedFile = signal<File | null>(null);
 
@@ -40,6 +42,9 @@ export class DocumentUpload {
       this.service.uploadDocument(file).subscribe({
         next: (documentFromBackend) => {
           this.uploadSuccess.set(documentFromBackend.originalFileName + ' is uploaded');
+          setTimeout(() => {
+            this.router.navigate(['/']);
+          }, 2000);
         },
         error: (error: HttpErrorResponse) => {
           if (error.status == 409) {
