@@ -20,6 +20,7 @@ public class OcrMessageConsumer {
     private static final Logger logger = LoggerFactory.getLogger(OcrMessageConsumer.class);
 
     private final OcrService ocrService;
+    private final OcrResultProducer ocrResultProducer;
 
     @Value("${minio.url}")
     private String url;
@@ -34,7 +35,11 @@ public class OcrMessageConsumer {
     public void receiveDocument(String message) {
         logger.info("New message from the queue: {}", message);
 
-        String id = message.split(":")[0];
+        String[] messageParts = message.split(":", 2);
+
+        String id = messageParts[0];
+        String fileName = messageParts[1];
+
         File pdf = new File(id + ".pdf");
 
         try {
@@ -52,6 +57,10 @@ public class OcrMessageConsumer {
             );
 
             String text = ocrService.extractText(pdf);
+
+            OcrResultMessage result = new OcrResultMessage(Long.valueOf(id), fileName, text);
+            ocrResultProducer.sendResult(result);
+
             logger.info("Text of document {}: {}", id, text);
 
         } catch (Exception exception) {
