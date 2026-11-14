@@ -8,9 +8,15 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMqConfig {
 
     public static final String OCR_QUEUE = "ocr.documents";
+    public static final String OCR_RESULT_QUEUE = "ocr.results";
 
     @Bean
     public Queue ocrQueue() {
         return new Queue(OCR_QUEUE, true);
+    }
+
+    @Bean
+    public Queue ocrResultQueue() {
+        return new Queue(OCR_RESULT_QUEUE, true);
     }
 }
