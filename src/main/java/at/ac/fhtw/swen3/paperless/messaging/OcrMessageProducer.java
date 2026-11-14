@@ -18,7 +18,7 @@ public class OcrMessageProducer {
     private final RabbitTemplate rabbitTemplate;
 
     public void sendDocument(Long documentId, String fileName) {
-        String message = documentId + ":" + fileName;
+        OcrDocumentMessage message = new OcrDocumentMessage(documentId, fileName);
 
         try {
             rabbitTemplate.convertAndSend(RabbitMqConfig.OCR_QUEUE, message);
