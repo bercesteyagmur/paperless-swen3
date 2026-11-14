@@ -34,6 +34,29 @@ services:
     volumes:
       - paperless-minio-data:/storage
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.1
+    container_name: paperless-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+    volumes:
+      - paperless-elasticsearch-data:/usr/share/elasticsearch/data
+
+  #web interface for elasticsearch
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.4.1
+    container_name: paperless-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
   paperless-rest:
     build:
       dockerfile: Dockerfile
@@ -83,3 +106,4 @@ services:
 volumes:
   paperless-db-data:
   paperless-minio-data:
+  paperless-elasticsearch-data:
