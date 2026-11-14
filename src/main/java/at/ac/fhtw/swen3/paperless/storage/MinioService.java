@@ -20,12 +20,14 @@ public class MinioService {
     private final MinioClient minioClient;
 
     public void uploadFile(String objectName, MultipartFile file) {
+        File pdf = null;
+
         try {
             if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(BUCKET).build())) {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(BUCKET).build());
             }
 
-            File pdf = File.createTempFile("upload", ".pdf");
+            pdf = File.createTempFile("upload", ".pdf");
             file.transferTo(pdf);
 
             minioClient.uploadObject(
@@ -33,12 +35,15 @@ public class MinioService {
                             .bucket(BUCKET)
                             .object(objectName)
                             .filename(pdf.getAbsolutePath())
+                            .contentType(file.getContentType())
                             .build()
             );
-            pdf.delete();
-
         } catch (Exception exception) {
             throw new FileStorageException("Could not store file in MinIO", exception);
+        } finally {
+            if (pdf != null) {
+                pdf.delete();
+            }
         }
     }
 }
