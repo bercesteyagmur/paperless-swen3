@@ -1,4 +1,4 @@
-package at.ac.fhtw.swen3.paperless.ocrworker.messaging;
+package at.ac.fhtw.swen3.paperless.ocrworker.messaging.outgoing;
 
 import at.ac.fhtw.swen3.paperless.ocrworker.config.RabbitMqConfig;
 import lombok.RequiredArgsConstructor;

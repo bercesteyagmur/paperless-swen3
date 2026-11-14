@@ -1,6 +1,8 @@
-package at.ac.fhtw.swen3.paperless.ocrworker.messaging;
+package at.ac.fhtw.swen3.paperless.ocrworker.messaging.incoming;
 
 import at.ac.fhtw.swen3.paperless.ocrworker.config.RabbitMqConfig;
+import at.ac.fhtw.swen3.paperless.ocrworker.messaging.outgoing.OcrResultMessage;
+import at.ac.fhtw.swen3.paperless.ocrworker.messaging.outgoing.OcrResultProducer;
 import at.ac.fhtw.swen3.paperless.ocrworker.service.OcrService;
 import io.minio.DownloadObjectArgs;
 import io.minio.MinioClient;
@@ -15,9 +17,9 @@ import java.io.File;
 
 @Component
 @RequiredArgsConstructor
-public class OcrMessageConsumer {
+public class OcrDocumentConsumer {
 
-    private static final Logger logger = LoggerFactory.getLogger(OcrMessageConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(OcrDocumentConsumer.class);
 
     private final OcrService ocrService;
     private final OcrResultProducer ocrResultProducer;
