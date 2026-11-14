@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DocumentResponse, TagResponse } from './document.model';
+import { DocumentResponse, DocumentSearchResponse, TagResponse } from './document.model';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +18,12 @@ export class DocumentService {
 
   getDocument(id: number): Observable<DocumentResponse> {
     return this.http.get<DocumentResponse>(`${this.apiUrl}/${id}`);
+  }
+
+  searchDocuments(query: string): Observable<DocumentSearchResponse[]> {
+    return this.http.get<DocumentSearchResponse[]>(`${this.apiUrl}/search`, {
+      params: { query }
+    });
   }
 
   // source: https://medium.com/@muhebollah.diu/understanding-multipart-form-data-the-ultimate-guide-for-beginners-fd039c04553d

@@ -19,6 +19,9 @@ export class DocumentList {
   tags = signal<TagResponse[]>([]);
   selectedTag = signal<TagResponse | null>(null);
 
+  searchQuery = signal('');
+  searchActive = signal(false);
+
   errorMessage = signal('');
 
   constructor() {
@@ -27,6 +30,8 @@ export class DocumentList {
 
   loadDocuments(): void {
     this.selectedTag.set(null);
+    this.searchQuery.set('');
+    this.searchActive.set(false);
     this.errorMessage.set('');
     this.service.getDocuments().subscribe({
       next: (documentsFromBackend) => {
@@ -83,5 +88,43 @@ export class DocumentList {
 
     this.documents.set(filtered);
     this.selectedTag.set(clickedTag);
+  }
+
+  onSearchInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.searchQuery.set(input.value);
+  }
+
+  searchDocuments(): void {
+    const query = this.searchQuery().trim();
+
+    if (!query) {
+      this.documents.set(this.allDocuments);
+      this.searchActive.set(false);
+      return;
+    }
+
+    this.errorMessage.set('');
+    this.selectedTag.set(null);
+
+    this.service.searchDocuments(query).subscribe({
+      next: (searchResults) => {
+        const matchingDocuments: DocumentResponse[] = [];
+
+        for (const result of searchResults) {
+          for (const document of this.allDocuments) {
+            if (document.id === result.documentId) {
+              matchingDocuments.push(document);
+            }
+          }
+        }
+
+        this.documents.set(matchingDocuments);
+        this.searchActive.set(true);
+      },
+      error: () => {
+        this.errorMessage.set('Documents could not be searched.');
+      },
+    });
   }
 }
