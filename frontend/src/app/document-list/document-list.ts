@@ -1,10 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { DocumentService } from '../shared/document.service';
 import { DocumentResponse, TagResponse } from '../shared/document.model';
 
 @Component({
   selector: 'app-document-list',
+  imports: [DatePipe],
   templateUrl: './document-list.html',
   styleUrl: './document-list.css',
 })
@@ -93,12 +95,21 @@ export class DocumentList {
   onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.searchQuery.set(input.value);
+
+    if (input.value.trim().length < 3) {
+      this.documents.set(this.allDocuments);
+      this.searchActive.set(false);
+      this.errorMessage.set('');
+      return;
+    }
+
+    this.searchDocuments();
   }
 
   searchDocuments(): void {
     const query = this.searchQuery().trim();
 
-    if (!query) {
+    if (query.length < 3) {
       this.documents.set(this.allDocuments);
       this.searchActive.set(false);
       return;

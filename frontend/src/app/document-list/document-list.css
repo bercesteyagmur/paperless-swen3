@@ -1,17 +1,29 @@
 .list-page {
-  max-width: 700px;
+  max-width: 850px;
   margin: 50px auto;
   font-family: Helvetica, sans-serif;
 }
 
 .list-box {
-  max-width: 700px;
+  width: 100%;
   margin: 0;
+  box-sizing: border-box;
+}
+
+.document-search {
+  margin-bottom: 16px;
+}
+
+.document-search input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 th, td {
@@ -22,6 +34,26 @@ th, td {
 
 th {
   background-color: #f2f2f2;
+}
+
+th:first-child {
+  width: 42%;
+}
+
+th:nth-child(2) {
+  width: 20%;
+}
+
+th:nth-child(3) {
+  width: 20%;
+}
+
+th:last-child {
+  width: 18%;
+}
+
+td:first-child {
+  overflow-wrap: anywhere;
 }
 
 .actions {
