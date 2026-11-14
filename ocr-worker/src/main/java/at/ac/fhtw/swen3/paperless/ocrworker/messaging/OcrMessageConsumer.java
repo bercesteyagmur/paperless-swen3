@@ -20,6 +20,7 @@ public class OcrMessageConsumer {
     private static final Logger logger = LoggerFactory.getLogger(OcrMessageConsumer.class);
 
     private final OcrService ocrService;
+    private final OcrResultProducer ocrResultProducer;
 
     @Value("${minio.url}")
     private String url;
@@ -31,10 +32,12 @@ public class OcrMessageConsumer {
     private String password;
 
     @RabbitListener(queues = RabbitMqConfig.OCR_QUEUE)
-    public void receiveDocument(String message) {
-        logger.info("New message from the queue: {}", message);
+    public void receiveDocument(OcrDocumentMessage message) {
+        Long documentId = message.documentId();
+        String fileName = message.fileName();
+        String id = documentId.toString();
 
-        String id = message.split(":")[0];
+        logger.info("Received document {} from the queue", documentId);
         File pdf = new File(id + ".pdf");
 
         try {
@@ -52,7 +55,11 @@ public class OcrMessageConsumer {
             );
 
             String text = ocrService.extractText(pdf);
-            logger.info("Text of document {}: {}", id, text);
+
+            OcrResultMessage result = new OcrResultMessage(documentId, fileName, text);
+            ocrResultProducer.sendResult(result);
+
+            logger.info("Extracted text from document {}", id);
 
         } catch (Exception exception) {
             logger.error("Could not read the text of document {}", id, exception);
