@@ -10,3 +10,8 @@ export interface DocumentResponse {
   uploadedAt: string;
   tags: TagResponse[];
 }
+
+export interface DocumentSearchResponse {
+  documentId: number;
+  fileName: string;
+}
