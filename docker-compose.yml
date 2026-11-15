@@ -46,7 +46,6 @@ services:
     volumes:
       - paperless-elasticsearch-data:/usr/share/elasticsearch/data
 
-  #web interface for elasticsearch
   kibana:
     image: docker.elastic.co/kibana/kibana:9.4.1
     container_name: paperless-kibana
@@ -54,6 +53,14 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     ports:
       - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:9.4.1
+    container_name: paperless-logstash
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
     depends_on:
       - elasticsearch
 
@@ -75,11 +82,14 @@ services:
       MINIO_USER: ${MINIO_USER:-minioadmin}
       MINIO_PASSWORD: ${MINIO_PASSWORD:-minioadmin}
       ELASTICSEARCH_URL: http://elasticsearch:9200
+      LOGSTASH_HOST: logstash
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       - db
       - rabbitmq
       - minio
       - elasticsearch
+      - logstash
 
   ocr-worker:
     build:
@@ -93,9 +103,12 @@ services:
       MINIO_URL: http://minio:9000
       MINIO_USER: ${MINIO_USER:-minioadmin}
       MINIO_PASSWORD: ${MINIO_PASSWORD:-minioadmin}
+      LOGSTASH_HOST: logstash
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       - rabbitmq
       - minio
+      - logstash
 
   indexing-worker:
     build:
@@ -107,9 +120,12 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-paperless}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-paperless}
       ELASTICSEARCH_URL: http://elasticsearch:9200
+      LOGSTASH_HOST: logstash
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       - rabbitmq
       - elasticsearch
+      - logstash
 
   nginx:
     build:
