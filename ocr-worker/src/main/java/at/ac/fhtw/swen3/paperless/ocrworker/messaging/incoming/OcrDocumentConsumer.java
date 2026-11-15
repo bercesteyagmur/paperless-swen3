@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -23,15 +22,7 @@ public class OcrDocumentConsumer {
 
     private final OcrService ocrService;
     private final OcrResultProducer ocrResultProducer;
-
-    @Value("${minio.url}")
-    private String url;
-
-    @Value("${minio.user}")
-    private String user;
-
-    @Value("${minio.password}")
-    private String password;
+    private final MinioClient minioClient;
 
     @RabbitListener(queues = RabbitMqConfig.OCR_QUEUE)
     public void receiveDocument(OcrDocumentMessage message) {
@@ -43,18 +34,13 @@ public class OcrDocumentConsumer {
         File pdf = new File(id + ".pdf");
 
         try {
-            MinioClient minioClient = MinioClient.builder()
-                    .endpoint(url)
-                    .credentials(user, password)
+            DownloadObjectArgs args = DownloadObjectArgs.builder()
+                    .bucket("documents")
+                    .object(id)
+                    .filename(pdf.getPath())
                     .build();
 
-            minioClient.downloadObject(
-                    DownloadObjectArgs.builder()
-                            .bucket("documents")
-                            .object(id)
-                            .filename(pdf.getPath())
-                            .build()
-            );
+            minioClient.downloadObject(args);
 
             String text = ocrService.extractText(pdf);
 
