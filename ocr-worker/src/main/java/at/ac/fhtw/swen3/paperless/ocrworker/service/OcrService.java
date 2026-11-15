@@ -9,13 +9,22 @@ import java.io.File;
 public class OcrService {
 
     public String extractText(File pdf) throws Exception {
-        File image = new File("page.tif");
+        File image = File.createTempFile("ocr-", ".tif");
 
-        new ProcessBuilder("gs", "-sDEVICE=tiffgray", "-r300", "-o", image.getPath(), pdf.getPath()).start().waitFor();
+        try {
+            Process process = new ProcessBuilder("gs", "-sDEVICE=tiffgray", "-r300", "-o", image.getPath(), pdf.getPath()).start();
 
-        Tesseract tesseract = new Tesseract();
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new IllegalStateException("Could not convert PDF for OCR");
+            }
 
-        tesseract.setDatapath("/usr/share/tesseract-ocr/5/tessdata");
-        return tesseract.doOCR(image);
+            Tesseract tesseract = new Tesseract();
+            tesseract.setDatapath("/usr/share/tesseract-ocr/5/tessdata");
+            tesseract.setLanguage("deu+eng");
+            return tesseract.doOCR(image);
+        } finally {
+            image.delete();
+        }
     }
 }

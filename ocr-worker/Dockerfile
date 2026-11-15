@@ -7,6 +7,6 @@ RUN mvn package -DskipTests
 FROM eclipse-temurin:25-jre
 WORKDIR /app
 RUN apt-get update
-RUN apt-get install -y tesseract-ocr ghostscript
+RUN apt-get install -y tesseract-ocr tesseract-ocr-deu ghostscript
 COPY --from=build /app/target/ocr-worker-0.0.1-SNAPSHOT.jar ocr-worker.jar
 ENTRYPOINT ["java", "-jar", "ocr-worker.jar"]

@@ -65,8 +65,8 @@ public class OcrDocumentConsumer {
 
         } catch (Exception exception) {
             logger.error("Could not read the text of document {}", id, exception);
+        } finally {
+            pdf.delete();
         }
-
-        pdf.delete();
     }
 }
