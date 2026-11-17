@@ -127,6 +127,19 @@ services:
       - elasticsearch
       - logstash
 
+  genai-worker:
+    build:
+      context: ./genai-worker
+      dockerfile: Dockerfile
+    container_name: paperless-genai-worker
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER:-paperless}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-paperless}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+    depends_on:
+      - rabbitmq
+
   nginx:
     build:
       dockerfile: frontend/Dockerfile
