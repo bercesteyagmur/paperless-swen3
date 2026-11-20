@@ -19,9 +19,9 @@
 
   <div class="tag-filter">
     <b>Filter:</b>
-    <button class="filter-button" [class.active]="selectedTag() == null" type="button" (click)="loadDocuments()">All</button>
+    <button class="filter-button" [class.active]="selectedTag() === null" type="button" (click)="loadDocuments()">All</button>
     @for (tag of tags(); track tag.id) {
-      <button class="filter-button" [class.active]="selectedTag()?.id == tag.id" type="button" (click)="onTagFilterClicked(tag)">{{ tag.name }}</button>
+      <button class="filter-button" [class.active]="selectedTag()?.id === tag.id" type="button" (click)="onTagFilterClicked(tag)">{{ tag.name }}</button>
     }
   </div>
 
@@ -32,7 +32,7 @@
         <th>Uploaded at</th>
         <th></th>
       </tr>
-      @if (documents().length == 0 && !errorMessage()) {
+      @if (documents().length === 0 && !errorMessage()) {
         <tr>
           <td colspan="4">
             @if (searchActive()) {

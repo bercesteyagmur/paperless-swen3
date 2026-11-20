@@ -45,7 +45,7 @@ export class DocumentList {
           for (const tag of document.tags) {
             let alreadyAdded = false;
             for (const addedTag of tags) {
-              if (addedTag.id == tag.id) {
+              if (addedTag.id === tag.id) {
                 alreadyAdded = true;
               }
             }
@@ -82,7 +82,7 @@ export class DocumentList {
 
     for (const document of this.allDocuments) {
       for (const documentTag of document.tags) {
-        if (documentTag.id == clickedTag.id) {
+        if (documentTag.id === clickedTag.id) {
           filtered.push(document);
         }
       }
@@ -95,14 +95,6 @@ export class DocumentList {
   onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.searchQuery.set(input.value);
-
-    if (input.value.trim().length < 3) {
-      this.documents.set(this.allDocuments);
-      this.searchActive.set(false);
-      this.errorMessage.set('');
-      return;
-    }
-
     this.searchDocuments();
   }
 
@@ -112,6 +104,7 @@ export class DocumentList {
     if (query.length < 3) {
       this.documents.set(this.allDocuments);
       this.searchActive.set(false);
+      this.errorMessage.set('');
       return;
     }
 
