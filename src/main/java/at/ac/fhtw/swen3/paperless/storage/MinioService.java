@@ -5,6 +5,7 @@ import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import lombok.RequiredArgsConstructor;
+import io.minio.RemoveObjectArgs;
 import io.minio.UploadObjectArgs;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,6 +46,19 @@ public class MinioService {
             if (pdf != null) {
                 pdf.delete();
             }
+        }
+    }
+
+    public void deleteFile(String objectName) {
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(BUCKET)
+                            .object(objectName)
+                            .build()
+            );
+        } catch (Exception exception) {
+            throw new FileStorageException("Could not delete file from MinIO", exception);
         }
     }
 }

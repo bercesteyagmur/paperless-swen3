@@ -6,6 +6,8 @@ import at.ac.fhtw.swen3.paperless.exception.ResourceNotFoundException;
 import at.ac.fhtw.swen3.paperless.business.mapper.UploadedFileModelMapper;
 import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
 import at.ac.fhtw.swen3.paperless.business.validation.FileNameValidator;
+import at.ac.fhtw.swen3.paperless.dal.elasticsearch.IndexedDocument;
+import at.ac.fhtw.swen3.paperless.dal.elasticsearch.IndexedDocumentRepository;
 import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
 import at.ac.fhtw.swen3.paperless.dal.repository.UploadedFileRepository;
 import at.ac.fhtw.swen3.paperless.business.service.UploadedFileService;
@@ -35,6 +37,7 @@ public class UploadedFileServiceImpl implements UploadedFileService {
     private final UploadedFileModelMapper uploadedFileModelMapper;
     private final OcrDocumentProducer ocrDocumentProducer;
     private final MinioService minioService;
+    private final IndexedDocumentRepository indexedDocumentRepository;
 
     private UploadedFileModel findByIdOrThrow(Long id) {
         return uploadedFileRepository.findById(id)
@@ -91,6 +94,12 @@ public class UploadedFileServiceImpl implements UploadedFileService {
 
         UploadedFile entity = uploadedFileModelMapper.toEntity(uploadedFileModel);
         UploadedFile savedEntity = uploadedFileRepository.save(entity);
+
+        indexedDocumentRepository.findById(id).ifPresent(indexedDocument ->
+                indexedDocumentRepository.save(new IndexedDocument(
+                        id,savedEntity.getOriginalFileName(),  indexedDocument.getContent()))
+        );
+
         logger.info("Renamed file {} to {}", id, savedEntity.getOriginalFileName());
         return uploadedFileModelMapper.toModel(savedEntity);
     }
@@ -98,6 +107,8 @@ public class UploadedFileServiceImpl implements UploadedFileService {
     @Override
     public void deleteFile(Long id) {
         UploadedFileModel uploadedFileModel = findByIdOrThrow(id);
+        minioService.deleteFile(id.toString());
+        indexedDocumentRepository.deleteById(id);
         uploadedFileRepository.delete(uploadedFileModelMapper.toEntity(uploadedFileModel));
         logger.info("Deleted file with id {}", id);
     }

@@ -5,6 +5,8 @@ import at.ac.fhtw.swen3.paperless.exception.ResourceAlreadyExistsException;
 import at.ac.fhtw.swen3.paperless.exception.ResourceNotFoundException;
 import at.ac.fhtw.swen3.paperless.business.mapper.UploadedFileModelMapper;
 import at.ac.fhtw.swen3.paperless.business.model.UploadedFileModel;
+import at.ac.fhtw.swen3.paperless.dal.elasticsearch.IndexedDocument;
+import at.ac.fhtw.swen3.paperless.dal.elasticsearch.IndexedDocumentRepository;
 import at.ac.fhtw.swen3.paperless.dal.entity.UploadedFile;
 import at.ac.fhtw.swen3.paperless.dal.repository.UploadedFileRepository;
 import at.ac.fhtw.swen3.paperless.messaging.OcrDocumentProducer;
@@ -16,6 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -43,6 +46,9 @@ class UploadedFileServiceImplTest {
 
     @Mock
     private MinioService minioService;
+
+    @Mock
+    private IndexedDocumentRepository indexedDocumentRepository;
 
     @Mock
     private MultipartFile multipartFile;
@@ -197,6 +203,29 @@ class UploadedFileServiceImplTest {
     }
 
     @Test
+    void updateChangesFileNameInSearchIndex() {
+        UploadedFile storedFile = file(3L, "old.pdf");
+        UploadedFileModel storedUploadedFileModel = uploadedFileModel(3L, "old.pdf");
+        UploadedFile renamedEntity = file(3L, "new.pdf");
+        UploadedFileModel renamedUploadedFileModel = uploadedFileModel(3L, "new.pdf");
+        IndexedDocument indexedDocument = new IndexedDocument(3L, "old.pdf", "Document text");
+
+        when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
+        when(uploadedFileModelMapper.toModel(storedFile)).thenReturn(storedUploadedFileModel);
+        when(uploadedFileModelMapper.toEntity(storedUploadedFileModel)).thenReturn(renamedEntity);
+        when(uploadedFileRepository.save(renamedEntity)).thenReturn(renamedEntity);
+        when(uploadedFileModelMapper.toModel(renamedEntity)).thenReturn(renamedUploadedFileModel);
+        when(indexedDocumentRepository.findById(3L)).thenReturn(Optional.of(indexedDocument));
+
+        service.updateFile(3L, "new.pdf");
+
+        ArgumentCaptor<IndexedDocument> updatedDocument = ArgumentCaptor.forClass(IndexedDocument.class);
+        verify(indexedDocumentRepository).save(updatedDocument.capture());
+        assertThat(updatedDocument.getValue().getFileName()).isEqualTo("new.pdf");
+        assertThat(updatedDocument.getValue().getContent()).isEqualTo("Document text");
+    }
+
+    @Test
     void updateRejectsNullName() {
         assertThrows(InvalidInputException.class, () -> service.updateFile(3L, null));
 
@@ -274,6 +303,8 @@ class UploadedFileServiceImplTest {
 
         service.deleteFile(3L);
 
+        verify(minioService).deleteFile("3");
+        verify(indexedDocumentRepository).deleteById(3L);
         verify(uploadedFileRepository).delete(entityToDelete);
     }
 
