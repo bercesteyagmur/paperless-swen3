@@ -4,6 +4,7 @@ import at.ac.fhtw.swen3.paperless.exception.FileStorageException;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
+import io.minio.RemoveObjectArgs;
 import io.minio.UploadObjectArgs;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,5 +61,15 @@ class MinioServiceTest {
         assertThrows(FileStorageException.class, () -> minioService.uploadFile("12", file));
 
         assertThat(new File(uploadCaptor.getValue().filename())).doesNotExist();
+    }
+
+    @Test
+    void deleteRemovesPdfFromMinio() throws Exception {
+        minioService.deleteFile("12");
+
+        ArgumentCaptor<RemoveObjectArgs> deleteCaptor = ArgumentCaptor.forClass(RemoveObjectArgs.class);
+        verify(minioClient).removeObject(deleteCaptor.capture());
+        assertThat(deleteCaptor.getValue().bucket()).isEqualTo("documents");
+        assertThat(deleteCaptor.getValue().object()).isEqualTo("12");
     }
 }
