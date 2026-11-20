@@ -51,6 +51,7 @@ public class OcrDocumentConsumer {
 
         } catch (Exception exception) {
             logger.error("Could not read the text of document {}", id, exception);
+            throw new IllegalStateException("Could not process document " + id, exception);
         } finally {
             pdf.delete();
         }

@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -66,7 +67,10 @@ class OcrDocumentConsumerTest {
     void doesNotPublishResultWhenOcrFails() throws Exception {
         when(ocrService.extractText(any(File.class))).thenThrow(new IllegalStateException("OCR failed"));
 
-        consumer.receiveDocument(new OcrDocumentMessage(987654321L, "report.pdf"));
+        assertThrows(
+                IllegalStateException.class,
+                () -> consumer.receiveDocument(new OcrDocumentMessage(987654321L, "report.pdf"))
+        );
 
         verify(ocrResultProducer, never()).sendResult(any(OcrResultMessage.class));
     }
