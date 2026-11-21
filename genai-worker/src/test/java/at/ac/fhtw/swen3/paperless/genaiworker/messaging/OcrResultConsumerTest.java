@@ -34,4 +34,18 @@ class OcrResultConsumerTest {
         assertThat(document.getValue().getFileName()).isEqualTo("report.pdf");
         assertThat(document.getValue().getContent()).isEqualTo("Document text");
     }
+
+    @Test
+    void sendsOcrTextToGemini() {
+        OcrResultConsumer consumer = new OcrResultConsumer(indexedDocumentRepository, geminiService);
+        OcrResultMessage result = new OcrResultMessage(
+                12L,
+                "report.pdf",
+                "This document explains the project architecture."
+        );
+
+        consumer.receiveResult(result);
+
+        verify(geminiService).summarize("This document explains the project architecture.");
+    }
 }
