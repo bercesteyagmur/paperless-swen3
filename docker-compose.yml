@@ -156,6 +156,7 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-paperless}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-paperless}
       ELASTICSEARCH_URL: http://elasticsearch:9200
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       LOGSTASH_HOST: logstash
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
