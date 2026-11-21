@@ -2,6 +2,7 @@ package at.ac.fhtw.swen3.paperless.genaiworker.messaging;
 
 import at.ac.fhtw.swen3.paperless.genaiworker.document.IndexedDocument;
 import at.ac.fhtw.swen3.paperless.genaiworker.repository.IndexedDocumentRepository;
+import at.ac.fhtw.swen3.paperless.genaiworker.service.GeminiService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,9 +18,12 @@ class OcrResultConsumerTest {
     @Mock
     private IndexedDocumentRepository indexedDocumentRepository;
 
+    @Mock
+    private GeminiService geminiService;
+
     @Test
     void storesOcrResultInElasticsearch() {
-        OcrResultConsumer consumer = new OcrResultConsumer(indexedDocumentRepository);
+        OcrResultConsumer consumer = new OcrResultConsumer(indexedDocumentRepository, geminiService);
         OcrResultMessage result = new OcrResultMessage(12L, "report.pdf", "Document text");
 
         consumer.receiveResult(result);
