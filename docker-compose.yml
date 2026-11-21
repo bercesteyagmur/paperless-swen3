@@ -10,6 +10,12 @@ services:
       - "5432:5432"
     volumes:
       - paperless-db-data:/var/lib/postgresql/data
+    healthcheck:
+      #source: https://www.postgresql.org/docs/16/app-pg-isready.html
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:4-management
@@ -20,6 +26,13 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      #source: https://www.rabbitmq.com/docs/monitoring
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   minio:
     image: dappros/minio:RELEASE.2025-09-07T16-13-09Z #original MinIO image is no longer available, so we use a pinned mirror
@@ -33,6 +46,12 @@ services:
       - "9001:9001"
     volumes:
       - paperless-minio-data:/storage
+    healthcheck:
+      #source: https://docs.min.io/aistor/operations/monitoring/healthcheck-probe/
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.4.1
@@ -45,6 +64,13 @@ services:
       - "9200:9200"
     volumes:
       - paperless-elasticsearch-data:/usr/share/elasticsearch/data
+    healthcheck:
+      #source: https://www.baeldung.com/ops/elasticsearch-docker-compose
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   kibana:
     image: docker.elastic.co/kibana/kibana:9.4.1
@@ -54,7 +80,8 @@ services:
     ports:
       - "5601:5601"
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
 
   logstash:
     image: docker.elastic.co/logstash/logstash:9.4.1
@@ -62,7 +89,8 @@ services:
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
 
   paperless-rest:
     build:
@@ -85,11 +113,16 @@ services:
       LOGSTASH_HOST: logstash
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - db
-      - rabbitmq
-      - minio
-      - elasticsearch
-      - logstash
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      logstash:
+        condition: service_started
 
   ocr-worker:
     build:
@@ -106,9 +139,12 @@ services:
       LOGSTASH_HOST: logstash
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - rabbitmq
-      - minio
-      - logstash
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      logstash:
+        condition: service_started
 
   genai-worker:
     build:
@@ -123,9 +159,12 @@ services:
       LOGSTASH_HOST: logstash
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - rabbitmq
-      - elasticsearch
-      - logstash
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      logstash:
+        condition: service_started
 
   nginx:
     build:
