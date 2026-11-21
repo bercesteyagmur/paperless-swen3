@@ -1,0 +1,12 @@
+package at.ac.fhtw.swen3.paperless.genaiworker;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class GenAiWorkerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(GenAiWorkerApplication.class, args);
+    }
+}
