@@ -20,7 +20,7 @@ jobs:
       - name: Run worker tests
         run: |
           ./mvnw -f ocr-worker/pom.xml test
-          ./mvnw -f indexing-worker/pom.xml test
+          ./mvnw -f genai-worker/pom.xml test
 
       - name: Build docker images
         run: docker compose build

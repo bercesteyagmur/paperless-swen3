@@ -110,11 +110,11 @@ services:
       - minio
       - logstash
 
-  indexing-worker:
+  genai-worker:
     build:
-      context: ./indexing-worker
+      context: ./genai-worker
       dockerfile: Dockerfile
-    container_name: paperless-indexing-worker
+    container_name: paperless-genai-worker
     environment:
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_USER: ${RABBITMQ_USER:-paperless}
