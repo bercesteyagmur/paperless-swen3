@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OcrResultConsumerTest {
@@ -21,9 +22,16 @@ class OcrResultConsumerTest {
     @Mock
     private GeminiService geminiService;
 
+    @Mock
+    private DocumentSummaryProducer documentSummaryProducer;
+
     @Test
     void storesOcrResultInElasticsearch() {
-        OcrResultConsumer consumer = new OcrResultConsumer(indexedDocumentRepository, geminiService);
+        OcrResultConsumer consumer = new OcrResultConsumer(
+                indexedDocumentRepository,
+                geminiService,
+                documentSummaryProducer
+        );
         OcrResultMessage result = new OcrResultMessage(12L, "report.pdf", "Document text");
 
         consumer.receiveResult(result);
@@ -37,7 +45,11 @@ class OcrResultConsumerTest {
 
     @Test
     void sendsOcrTextToGemini() {
-        OcrResultConsumer consumer = new OcrResultConsumer(indexedDocumentRepository, geminiService);
+        OcrResultConsumer consumer = new OcrResultConsumer(
+                indexedDocumentRepository,
+                geminiService,
+                documentSummaryProducer
+        );
         OcrResultMessage result = new OcrResultMessage(
                 12L,
                 "report.pdf",
@@ -47,5 +59,20 @@ class OcrResultConsumerTest {
         consumer.receiveResult(result);
 
         verify(geminiService).summarize("This document explains the project architecture.");
+    }
+
+    @Test
+    void sendsGeneratedSummaryToQueue() {
+        OcrResultConsumer consumer = new OcrResultConsumer(
+                indexedDocumentRepository,
+                geminiService,
+                documentSummaryProducer
+        );
+        OcrResultMessage result = new OcrResultMessage(12L, "report.pdf", "Document text");
+        when(geminiService.summarize("Document text")).thenReturn("Short summary");
+
+        consumer.receiveResult(result);
+
+        verify(documentSummaryProducer).sendSummary(12L, "Short summary");
     }
 }
