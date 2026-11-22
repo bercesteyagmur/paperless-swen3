@@ -18,6 +18,7 @@ public class OcrResultConsumer {
 
     private final IndexedDocumentRepository indexedDocumentRepository;
     private final GeminiService geminiService;
+    private final DocumentSummaryProducer documentSummaryProducer;
 
     @RabbitListener(queues = RabbitMqConfig.OCR_RESULT_QUEUE)
 
@@ -37,5 +38,7 @@ public class OcrResultConsumer {
         //
         String summary = geminiService.summarize(result.content());
         logger.info("Generated summary for document {}: {}", result.documentId(), summary);
+
+        documentSummaryProducer.sendSummary(result.documentId(), summary);
     }
 }
