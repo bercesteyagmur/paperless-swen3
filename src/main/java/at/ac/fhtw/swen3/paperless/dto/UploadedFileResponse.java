@@ -15,5 +15,6 @@ public class UploadedFileResponse {
     private String originalFileName;
     private String fileType;
     private LocalDateTime uploadedAt;
+    private String summary;
     private List<TagResponse> tags;
 }

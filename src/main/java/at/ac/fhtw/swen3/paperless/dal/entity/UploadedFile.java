@@ -33,6 +33,9 @@ public class UploadedFile {
     @Column(nullable = false)
     private LocalDateTime uploadedAt;
 
+    @Column(columnDefinition = "TEXT")
+    private String summary;
+
 
 
 
