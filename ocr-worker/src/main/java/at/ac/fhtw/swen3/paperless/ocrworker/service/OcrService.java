@@ -22,6 +22,7 @@ public class OcrService {
             Tesseract tesseract = new Tesseract();
             tesseract.setDatapath("/usr/share/tesseract-ocr/5/tessdata");
             tesseract.setLanguage("deu+eng");
+            tesseract.setVariable("user_defined_dpi", "300");
             return tesseract.doOCR(image);
         } finally {
             image.delete();
