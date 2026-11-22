@@ -8,6 +8,7 @@ export interface DocumentResponse {
   originalFileName: string;
   fileType: string;
   uploadedAt: string;
+  summary: string | null;
   tags: TagResponse[];
 }
 

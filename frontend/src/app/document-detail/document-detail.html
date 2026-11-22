@@ -17,6 +17,13 @@
       }
     </p>
 
+    <p><b>Summary:</b></p>
+    @if (file()?.summary) {
+      <p>{{ file()?.summary }}</p>
+    } @else {
+      <p>No summary available yet.</p>
+    }
+
     <label for="new-name">New name</label>
     <input id="new-name" type="text" [value]="newName()" (input)="onNameTyped($event)" />.pdf
     <button type="button" (click)="onRenameButtonClicked()">Rename</button>

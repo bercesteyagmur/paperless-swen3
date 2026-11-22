@@ -292,6 +292,17 @@ class UploadedFileServiceImplTest {
     }
 
     @Test
+    void saveSummaryUpdatesDocument() {
+        UploadedFile storedFile = file(3L, "report.pdf");
+        when(uploadedFileRepository.findById(3L)).thenReturn(Optional.of(storedFile));
+
+        service.saveSummary(3L, "Short document summary");
+
+        assertThat(storedFile.getSummary()).isEqualTo("Short document summary");
+        verify(uploadedFileRepository).save(storedFile);
+    }
+
+    @Test
     void deleteRemovesExistingFile() {
         UploadedFile storedFile = file(3L, "report.pdf");
         UploadedFileModel uploadedFileModel = uploadedFileModel(3L, "report.pdf");

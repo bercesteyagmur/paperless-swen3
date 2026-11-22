@@ -21,6 +21,7 @@ public class UploadedFileModel {
     private String originalFileName;
     private String fileType;
     private LocalDateTime uploadedAt;
+    private String summary;
 
     @Builder.Default
     private Set<TagModel> tags = new HashSet<>();
