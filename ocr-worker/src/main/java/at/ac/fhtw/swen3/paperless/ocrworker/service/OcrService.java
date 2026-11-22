@@ -12,7 +12,8 @@ public class OcrService {
         File image = File.createTempFile("ocr-", ".tif");
 
         try {
-            Process process = new ProcessBuilder("gs", "-sDEVICE=tiffgray", "-r300", "-o", image.getPath(), pdf.getPath()).start();
+            Process process = new ProcessBuilder("gs", "-sDEVICE=tiffgray", "-r300", "-dUseCropBox", "-o", image.getPath(), pdf.getPath()).start();
+            //-r300=300pixel/zoll
 
             int exitCode = process.waitFor();
             if (exitCode != 0) {
@@ -22,7 +23,7 @@ public class OcrService {
             Tesseract tesseract = new Tesseract();
             tesseract.setDatapath("/usr/share/tesseract-ocr/5/tessdata");
             tesseract.setLanguage("deu+eng");
-            tesseract.setVariable("user_defined_dpi", "300");
+            tesseract.setVariable("user_defined_dpi", "300");   //otherwise: invalid resolution 1dpi, using 70 instead
             return tesseract.doOCR(image);
         } finally {
             image.delete();
