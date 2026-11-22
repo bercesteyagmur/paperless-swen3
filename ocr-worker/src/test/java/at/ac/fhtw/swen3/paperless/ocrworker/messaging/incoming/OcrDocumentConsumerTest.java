@@ -74,4 +74,16 @@ class OcrDocumentConsumerTest {
 
         verify(ocrResultProducer, never()).sendResult(any(OcrResultMessage.class));
     }
+
+    @Test
+    void doesNotPublishEmptyOcrResult() throws Exception {
+        when(ocrService.extractText(any(File.class))).thenReturn(" ");
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> consumer.receiveDocument(new OcrDocumentMessage(987654321L, "report.pdf"))
+        );
+
+        verify(ocrResultProducer, never()).sendResult(any(OcrResultMessage.class));
+    }
 }

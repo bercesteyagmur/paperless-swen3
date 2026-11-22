@@ -43,6 +43,9 @@ public class OcrDocumentConsumer {
             minioClient.downloadObject(args);
 
             String text = ocrService.extractText(pdf);
+            if (text == null || text.isBlank()) {
+                throw new IllegalStateException("No text could be extracted from document " + id);
+            }
 
             OcrResultMessage result = new OcrResultMessage(documentId, fileName, text);
             ocrResultProducer.sendResult(result);
