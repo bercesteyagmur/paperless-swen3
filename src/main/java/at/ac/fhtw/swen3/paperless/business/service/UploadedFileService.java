@@ -15,5 +15,7 @@ public interface UploadedFileService {
 
     UploadedFileModel updateFile(Long id, String newFileName);
 
+    void saveSummary(Long id, String summary);
+
     void deleteFile(Long id);
 }

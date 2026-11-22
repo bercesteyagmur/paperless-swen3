@@ -105,6 +105,16 @@ public class UploadedFileServiceImpl implements UploadedFileService {
     }
 
     @Override
+    public void saveSummary(Long id, String summary) {
+        UploadedFile uploadedFile = uploadedFileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("file not found"));
+
+        uploadedFile.setSummary(summary);
+        uploadedFileRepository.save(uploadedFile);
+        logger.info("Stored summary for document {}", id);
+    }
+
+    @Override
     public void deleteFile(Long id) {
         UploadedFileModel uploadedFileModel = findByIdOrThrow(id);
         minioService.deleteFile(id.toString());
