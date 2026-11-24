@@ -37,7 +37,7 @@ public class OcrResultConsumer {
 
         //
         String summary = geminiService.summarize(result.content());
-        logger.info("Generated summary for document {}: {}", result.documentId(), summary);
+        logger.info("Generated summary for document {}", result.documentId());
 
         documentSummaryProducer.sendSummary(result.documentId(), summary);
     }
