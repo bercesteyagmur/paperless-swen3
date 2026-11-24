@@ -7,7 +7,7 @@
 
   @if (file()) {
     <p><b>Name:</b> {{ file()?.originalFileName }}</p>
-    <p><b>Uploaded at:</b> {{ file()?.uploadedAt }}</p>
+    <p><b>Uploaded at:</b> {{ file()?.uploadedAt | date:'dd.MM.yyyy HH:mm' }}</p>
     <p><b>Tags:</b>
       @for (tag of file()?.tags; track tag.id) {
         <span class="tag">
@@ -17,12 +17,14 @@
       }
     </p>
 
-    <p><b>Summary:</b></p>
-    @if (file()?.summary) {
-      <p>{{ file()?.summary }}</p>
-    } @else {
-      <p>No summary available yet.</p>
-    }
+    <div class="summary-box">
+      <h3>Summary</h3>
+      @if (file()?.summary) {
+        <p class="summary-text">{{ file()?.summary }}</p>
+      } @else {
+        <p class="summary-empty">No summary available yet.</p>
+      }
+    </div>
 
     <label for="new-name">New name</label>
     <input id="new-name" type="text" [value]="newName()" (input)="onNameTyped($event)" />.pdf

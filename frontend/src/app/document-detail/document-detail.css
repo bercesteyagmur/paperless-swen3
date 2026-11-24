@@ -1,5 +1,28 @@
 .detail-box {
-  max-width: 400px;
+  max-width: 600px;
+}
+
+.summary-box {
+  margin: 16px 0;
+  padding: 12px;
+  border-left: 4px solid #1976d2;
+  border-radius: 4px;
+  background-color: #f5f7fa;
+}
+
+.summary-box h3 {
+  margin: 0 0 8px;
+}
+
+.summary-text {
+  margin: 0;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.summary-empty {
+  margin: 0;
+  color: #666;
 }
 
 label {

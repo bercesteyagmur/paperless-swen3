@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DocumentService } from '../shared/document.service';
@@ -6,7 +7,7 @@ import { DocumentResponse, TagResponse } from '../shared/document.model';
 
 @Component({
   selector: 'app-document-detail',
-  imports: [RouterLink],
+  imports: [RouterLink, DatePipe],
   templateUrl: './document-detail.html',
   styleUrl: './document-detail.css',
 })
