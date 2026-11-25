@@ -13,6 +13,15 @@ async def get_json(path: str):
         return response.json()
 
 
+async def upload_pdf(filename: str, content: bytes) -> None:
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        response = await client.post(
+            f"{API_BASE_URL}/api/files",
+            files={"file": (filename, content, "application/pdf")},
+        )
+        response.raise_for_status()
+
+
 def uploaded_at(document: dict) -> str:
     value = document.get("uploadedAt")
     if not value:
@@ -33,6 +42,7 @@ async def main(page: ft.Page) -> None:
     page.scroll = ft.ScrollMode.AUTO
     body = ft.Container(padding=16)
     page.add(ft.SafeArea(content=body))
+    upload_status = ft.Text()
 
     def show_loading(*controls: ft.Control) -> ft.Column:
         screen = ft.Column(controls=[*controls, ft.ProgressRing()])
@@ -47,25 +57,26 @@ async def main(page: ft.Page) -> None:
 
     async def show_documents(_event=None) -> None:
         heading = ft.Text("Documents", size=24, weight=ft.FontWeight.BOLD)
-        screen = show_loading(heading)
+        list_controls = [heading, upload_button, upload_status]
+        screen = show_loading(*list_controls)
         try:
             documents = await get_json("/api/files")
         except (httpx.HTTPError, ValueError):
             show_result(
                 screen,
-                heading,
+                *list_controls,
                 ft.Text("Could not load documents."),
                 ft.TextButton("Try again", on_click=show_documents),
             )
             return
 
         if not documents:
-            show_result(screen, heading, ft.Text("No files uploaded yet."))
+            show_result(screen, *list_controls, ft.Text("No files uploaded yet."))
             return
 
         show_result(
             screen,
-            heading,
+            *list_controls,
             *[
                 ft.Card(
                     content=ft.Container(
@@ -106,6 +117,51 @@ async def main(page: ft.Page) -> None:
             ft.Text("Summary", size=18, weight=ft.FontWeight.BOLD),
             ft.Text(summary or "No summary available yet.", selectable=True),
         )
+
+    async def on_pdf_selected(event: ft.FilePickerResultEvent) -> None:
+        if not event.files or upload_button.disabled:
+            return
+
+        selected = event.files[0]
+        if not selected.name.lower().endswith(".pdf") or not selected.bytes:
+            upload_status.value = "Select a non-empty PDF."
+            upload_status.color = ft.Colors.ERROR
+            page.update()
+            return
+
+        screen = body.content
+        upload_button.disabled = True
+        upload_status.value = "Uploading PDF..."
+        upload_status.color = None
+        page.update()
+
+        try:
+            await upload_pdf(selected.name, selected.bytes)
+        except httpx.HTTPError:
+            upload_status.value = "Could not upload the PDF."
+            upload_status.color = ft.Colors.ERROR
+            upload_button.disabled = False
+            page.update()
+            return
+
+        upload_status.value = "PDF uploaded successfully."
+        upload_button.disabled = False
+        if body.content is screen:
+            await show_documents()
+        else:
+            page.update()
+
+    picker = ft.FilePicker(on_result=on_pdf_selected)
+    page.services.append(picker)
+    upload_button = ft.Button(
+        "Upload PDF",
+        action=ft.PickFiles(
+            picker,
+            file_type=ft.FilePickerFileType.CUSTOM,
+            allowed_extensions=["pdf"],
+            with_data=True,
+        ),
+    )
 
     await show_documents()
 
