@@ -2,7 +2,7 @@
 name = "paperless-mobile"
 version = "0.1.0"
 requires-python = ">=3.10"
-dependencies = ["flet==1.1.3"]
+dependencies = ["flet==1.1.3", "httpx==0.28.1"]
 
 [project.optional-dependencies]
 dev = ["flet[cli,web]"]
