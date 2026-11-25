@@ -1,0 +1,11 @@
+[project]
+name = "paperless-mobile"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = ["flet==1.1.3"]
+
+[project.optional-dependencies]
+dev = ["flet[cli,web]"]
+
+[tool.flet.app]
+path = "src"
