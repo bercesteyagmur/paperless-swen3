@@ -1,6 +1,6 @@
 ---
 name: paperless-mobile-app
-description: Implement one selected step of the new Paperless Ionic mobile application using the existing REST API.
+description: "Implement or verify one Paperless mobile issue in the Flet app, including Android APK checks for #142."
 ---
 
 # Paperless mobile application
@@ -25,9 +25,8 @@ Do not add secrets. Do not commit or push unless the user asks.
 
 After the implementation:
 
-1. Run the relevant scripts from `mobile-app/package.json`.
-2. Run the production build.
-3. Manually verify the feature when possible.
-4. Show and explain the changed files and the request flow.
-5. Report anything that could not be verified.
+1. Run the available checks for the changed feature and verify it against the selected issue.
+2. For #142, follow [Android verification](references/android-verification.md). Use [build-apk.sh](scripts/build-apk.sh) to build the APK and report its path.
+3. If a check fails, use the error to fix the cause and rerun the check. If Android or the backend is unavailable, report which checks ran and which are still open.
+4. Explain the changed files, request flow and test results before moving to another issue.
 
