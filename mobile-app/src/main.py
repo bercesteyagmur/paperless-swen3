@@ -4,6 +4,7 @@ import flet as ft
 import httpx
 
 from api import change_document, get_json, upload_pdf
+from tags import tag_editor
 
 
 def uploaded_at(document: dict) -> str:
@@ -27,6 +28,7 @@ async def main(page: ft.Page) -> None:
     body = ft.Container(padding=16)
     page.add(ft.SafeArea(content=body))
     list_status = ft.Text()
+    selected_tag = "all"
 
     def show_loading(*controls: ft.Control) -> ft.Column:
         screen = ft.Column(controls=[*controls, ft.ProgressRing()])
@@ -40,6 +42,7 @@ async def main(page: ft.Page) -> None:
             page.update()
 
     async def show_documents(_event=None) -> None:
+        nonlocal selected_tag
         heading = ft.Text("Documents", size=24, weight=ft.FontWeight.BOLD)
         list_controls = [heading, upload_button, list_status]
         screen = show_loading(*list_controls)
@@ -54,14 +57,14 @@ async def main(page: ft.Page) -> None:
             )
             return
 
-        if not documents:
-            show_result(screen, *list_controls, ft.Text("No files uploaded yet."))
-            return
-
-        show_result(
-            screen,
-            *list_controls,
-            *[
+        def render_documents() -> None:
+            visible = [
+                document for document in documents
+                if selected_tag == "all" or any(
+                    str(tag["id"]) == selected_tag for tag in document.get("tags") or []
+                )
+            ]
+            cards = [
                 ft.Card(
                     content=ft.Container(
                         padding=12,
@@ -78,9 +81,32 @@ async def main(page: ft.Page) -> None:
                         ),
                     ),
                 )
-                for document in documents
-            ],
-        )
+                for document in visible
+            ]
+            if not cards:
+                message = "No files uploaded yet." if not documents else "No documents with this tag."
+                cards = [ft.Text(message)]
+            show_result(screen, *list_controls, *cards)
+
+        def filter_documents(event) -> None:
+            nonlocal selected_tag
+            selected_tag = event.control.value or "all"
+            render_documents()
+
+        try:
+            tags = await get_json("/api/tags")
+        except (httpx.HTTPError, ValueError):
+            selected_tag = "all"
+            list_controls.append(ft.Text("Could not load tags."))
+        else:
+            options = [ft.DropdownOption(key="all", text="All tags")]
+            options.extend(ft.DropdownOption(key=str(tag["id"]), text=tag["name"]) for tag in tags)
+            if selected_tag not in {option.key for option in options}:
+                selected_tag = "all"
+            list_controls.append(
+                ft.Dropdown(label="Filter by tag", value=selected_tag, options=options, on_select=filter_documents),
+            )
+        render_documents()
 
     async def show_details(event) -> None:
         document_id = event.control.data
@@ -160,7 +186,7 @@ async def main(page: ft.Page) -> None:
             back,
             ft.Text(filename, size=24, weight=ft.FontWeight.BOLD),
             ft.Text(f"Uploaded at: {uploaded_at(document)}"),
-            ft.Text(f"Tags: {tag_names(document)}"),
+            tag_editor(page, document),
             name,
             ft.Row(controls=[rename_button, delete_button], wrap=True),
             status,
@@ -169,6 +195,7 @@ async def main(page: ft.Page) -> None:
         )
 
     async def on_pdf_selected(event: ft.FilePickerResultEvent) -> None:
+        nonlocal selected_tag
         if not event.files or upload_button.disabled:
             return
 
@@ -195,6 +222,7 @@ async def main(page: ft.Page) -> None:
             return
 
         list_status.value = "PDF uploaded successfully."
+        selected_tag = "all"
         upload_button.disabled = False
         if body.content is screen:
             await show_documents()

@@ -27,3 +27,16 @@ async def change_document(document_id: int, method: str, payload: dict | None = 
             json=payload,
         )
         response.raise_for_status()
+
+
+async def add_tag(document_id: int, name: str) -> dict:
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        response = await client.post(f"{API_BASE_URL}/api/files/{document_id}/tags", json={"name": name})
+        response.raise_for_status()
+        return response.json()
+
+
+async def remove_tag(document_id: int, tag_id: int) -> None:
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        response = await client.delete(f"{API_BASE_URL}/api/files/{document_id}/tags/{tag_id}")
+        response.raise_for_status()
