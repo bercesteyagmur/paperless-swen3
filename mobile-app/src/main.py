@@ -3,7 +3,7 @@ from datetime import datetime
 import flet as ft
 import httpx
 
-from api import change_document, get_json, upload_pdf
+from api import change_document, get_json, search_documents, upload_pdf
 from tags import tag_editor
 
 
@@ -57,9 +57,24 @@ async def main(page: ft.Page) -> None:
             )
             return
 
+        documents_by_id = {document["id"]: document for document in documents}
+        matching_ids = None
+        search_version = 0
+        search_pending = False
+        search_status = ft.Text()
+        tag_filter = None
+
         def render_documents() -> None:
+            if search_pending:
+                show_result(screen, *list_controls)
+                return
+
+            candidates = documents
+            if matching_ids is not None:
+                candidates = [documents_by_id[document_id] for document_id in matching_ids if document_id in documents_by_id]
+
             visible = [
-                document for document in documents
+                document for document in candidates
                 if selected_tag == "all" or any(
                     str(tag["id"]) == selected_tag for tag in document.get("tags") or []
                 )
@@ -84,14 +99,65 @@ async def main(page: ft.Page) -> None:
                 for document in visible
             ]
             if not cards:
-                message = "No files uploaded yet." if not documents else "No documents with this tag."
+                if matching_ids is not None:
+                    message = "No matching documents found."
+                elif not documents:
+                    message = "No files uploaded yet."
+                else:
+                    message = "No documents with this tag."
                 cards = [ft.Text(message)]
             show_result(screen, *list_controls, *cards)
+
+        async def on_search_input(_event) -> None:
+            nonlocal matching_ids, search_pending, search_version
+            query = (search_field.value or "").strip()
+            search_version += 1
+            version = search_version
+            if len(query) < 3:
+                matching_ids = None
+                search_pending = False
+                search_status.value = ""
+                render_documents()
+                return
+
+            search_pending = True
+            search_status.value = "Searching..."
+            search_status.color = None
+            render_documents()
+            try:
+                results = await search_documents(query)
+            except (httpx.HTTPError, ValueError):
+                if version == search_version:
+                    matching_ids = None
+                    search_pending = False
+                    search_status.value = "Could not search documents."
+                    search_status.color = ft.Colors.ERROR
+                    render_documents()
+                return
+
+            if version == search_version:
+                matching_ids = [result["documentId"] for result in results]
+                search_pending = False
+                search_status.value = ""
+                render_documents()
+
+        async def clear_search(_event) -> None:
+            nonlocal selected_tag
+            search_field.value = ""
+            selected_tag = "all"
+            if tag_filter is not None:
+                tag_filter.value = "all"
+            await on_search_input(None)
 
         def filter_documents(event) -> None:
             nonlocal selected_tag
             selected_tag = event.control.value or "all"
             render_documents()
+
+        search_field = ft.TextField(label="Search document content", on_change=on_search_input, expand=True)
+        list_controls.extend(
+            [ft.Row(controls=[search_field, ft.TextButton("Clear", on_click=clear_search)]), search_status],
+        )
 
         try:
             tags = await get_json("/api/tags")
@@ -103,9 +169,8 @@ async def main(page: ft.Page) -> None:
             options.extend(ft.DropdownOption(key=str(tag["id"]), text=tag["name"]) for tag in tags)
             if selected_tag not in {option.key for option in options}:
                 selected_tag = "all"
-            list_controls.append(
-                ft.Dropdown(label="Filter by tag", value=selected_tag, options=options, on_select=filter_documents),
-            )
+            tag_filter = ft.Dropdown(label="Filter by tag", value=selected_tag, options=options, on_select=filter_documents)
+            list_controls.append(tag_filter)
         render_documents()
 
     async def show_details(event) -> None:
